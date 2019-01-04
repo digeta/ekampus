@@ -1,0 +1,750 @@
+<%@ Page Language="VB" MasterPageFile="~/MasterPage.master" AutoEventWireup="false"
+    CodeFile="Messages.aspx.vb" Inherits="Messages" Title="Untitled Page" %>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="o_cph_main" runat="Server">
+    <asp:Panel ID="o_pnl_mesaj" runat="server">
+        <table>
+            <tr>
+                <td>
+                </td>
+                <td>
+                    <asp:Label ID="o_lbl_notice" runat="server" Font-Bold="True" Font-Names="Arial" Font-Size="9pt"
+                        ForeColor="Red"></asp:Label>
+                    <asp:GridView ID="o_grid_msj" runat="server" AllowSorting="True" AutoGenerateColumns="False"
+                        CellPadding="4" DataKeyNames="ID,ALICI_ID" ForeColor="#333333" GridLines="None"
+                        ShowFooter="True" Width="656px">
+                        <FooterStyle BackColor="#5D7B9D" Font-Bold="True" ForeColor="White" />
+                        <Columns>
+                            <asp:BoundField DataField="ID" HeaderText="ID" InsertVisible="False" ReadOnly="True"
+                                SortExpression="ID" Visible="False">
+                                <ItemStyle BackColor="PaleTurquoise" />
+                            </asp:BoundField>
+                            <asp:BoundField DataField="GOND_AD" HeaderText="G&#246;nderen" SortExpression="GOND_AD">
+                                <HeaderStyle BackColor="Thistle" />
+                                <FooterStyle BackColor="Thistle" />
+                            </asp:BoundField>
+                            <asp:BoundField DataField="MSJ_KONU" HeaderText="Konu" SortExpression="MSJ_KONU">
+                                <HeaderStyle BackColor="Thistle" />
+                                <FooterStyle BackColor="Thistle" />
+                            </asp:BoundField>
+                            <asp:BoundField DataField="GOND_TARIH" HeaderText="G&#246;nderilme" SortExpression="GOND_TARIH">
+                                <HeaderStyle BackColor="Thistle" />
+                                <FooterStyle BackColor="Thistle" />
+                            </asp:BoundField>
+                            <asp:BoundField DataField="DURUM" HeaderText="Durum" SortExpression="DURUM">
+                                <HeaderStyle BackColor="Thistle" />
+                                <FooterStyle BackColor="Thistle" />
+                            </asp:BoundField>
+                            <asp:CommandField ButtonType="Button" SelectText="Oku" ShowSelectButton="True">
+                                <FooterStyle BackColor="Thistle" />
+                                <HeaderStyle BackColor="Thistle" />
+                                <ItemStyle ForeColor="#FF8000" />
+                                <ControlStyle Font-Bold="False" Font-Names="Courier New" Font-Size="10pt" ForeColor="#404040" />
+                            </asp:CommandField>
+                            <asp:CommandField ButtonType="Button" DeleteText="Sil" ShowDeleteButton="True">
+                                <FooterStyle BackColor="Thistle" />
+                                <HeaderStyle BackColor="Thistle" />
+                                <ControlStyle Font-Names="Courier New" Font-Size="10pt" ForeColor="#404040" />
+                            </asp:CommandField>
+                        </Columns>
+                        <RowStyle BackColor="#F7F6F3" Font-Names="Arial" Font-Size="9pt" ForeColor="#333333" />
+                        <EditRowStyle BackColor="#999999" />
+                        <SelectedRowStyle BackColor="#E2DED6" Font-Bold="True" ForeColor="#333333" />
+                        <PagerStyle BackColor="#284775" ForeColor="White" HorizontalAlign="Center" />
+                        <HeaderStyle BackColor="#5D7B9D" Font-Bold="True" Font-Names="Arial" Font-Size="9pt"
+                            ForeColor="White" />
+                        <AlternatingRowStyle BackColor="White" ForeColor="#284775" />
+                    </asp:GridView>
+                    <asp:GridView ID="o_grid_trash" runat="server" AllowSorting="True" AutoGenerateColumns="False"
+                        CellPadding="4" DataKeyNames="ID" ForeColor="#333333" GridLines="None" ShowFooter="True"
+                        Width="656px" Visible="False">
+                        <FooterStyle BackColor="#5D7B9D" Font-Bold="True" ForeColor="White" />
+                        <Columns>
+                            <asp:BoundField DataField="ID" HeaderText="ID" InsertVisible="False" ReadOnly="True"
+                                SortExpression="ID" Visible="False">
+                                <ItemStyle BackColor="PaleTurquoise" />
+                            </asp:BoundField>
+                            <asp:BoundField DataField="GOND_AD" HeaderText="G&#246;nderen" SortExpression="GOND_AD">
+                                <HeaderStyle BackColor="Thistle" />
+                                <FooterStyle BackColor="Thistle" />
+                            </asp:BoundField>
+                            <asp:BoundField DataField="MSJ_KONU" HeaderText="Konu" SortExpression="MSJ_KONU">
+                                <HeaderStyle BackColor="Thistle" />
+                                <FooterStyle BackColor="Thistle" />
+                            </asp:BoundField>
+                            <asp:BoundField DataField="GOND_TARIH" HeaderText="G&#246;nderilme" SortExpression="GOND_TARIH">
+                                <HeaderStyle BackColor="Thistle" />
+                                <FooterStyle BackColor="Thistle" />
+                            </asp:BoundField>
+                            <asp:BoundField DataField="DURUM" HeaderText="Durum" SortExpression="DURUM">
+                                <HeaderStyle BackColor="Thistle" />
+                                <FooterStyle BackColor="Thistle" />
+                            </asp:BoundField>
+                            <asp:CommandField ButtonType="Button" SelectText="Oku" ShowSelectButton="True">
+                                <FooterStyle BackColor="Thistle" />
+                                <HeaderStyle BackColor="Thistle" />
+                                <ItemStyle ForeColor="#FF8000" />
+                                <ControlStyle Font-Bold="False" Font-Names="Courier New" Font-Size="10pt" ForeColor="#404040" />
+                            </asp:CommandField>
+                            <asp:CommandField ButtonType="Button" DeleteText="Sil" ShowDeleteButton="True">
+                                <FooterStyle BackColor="Thistle" />
+                                <HeaderStyle BackColor="Thistle" />
+                                <ControlStyle Font-Names="Courier New" Font-Size="10pt" ForeColor="#404040" />
+                            </asp:CommandField>
+                        </Columns>
+                        <RowStyle BackColor="#F7F6F3" Font-Names="Arial" Font-Size="9pt" ForeColor="#333333" />
+                        <EditRowStyle BackColor="#999999" />
+                        <SelectedRowStyle BackColor="#E2DED6" Font-Bold="True" ForeColor="#333333" />
+                        <PagerStyle BackColor="#284775" ForeColor="White" HorizontalAlign="Center" />
+                        <HeaderStyle BackColor="#5D7B9D" Font-Bold="True" Font-Names="Arial" Font-Size="9pt"
+                            ForeColor="White" />
+                        <AlternatingRowStyle BackColor="White" ForeColor="#284775" />
+                    </asp:GridView>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                </td>
+                <td style="text-align: left;">
+                    <asp:Button ID="o_btn_compose" runat="server" Text="Mesaj Yaz (Öðr.)" Font-Names="Arial"
+                        ForeColor="#404040" Width="112px" /><asp:Button ID="o_btn_compose2" runat="server"
+                            Text="Mesaj Yaz (Öðr.)" Font-Names="Arial" ForeColor="#404040" Width="112px" /><asp:Button
+                                ID="o_btn_composep" runat="server" Text="Mesaj Yaz (Per.)" Font-Names="Arial"
+                                ForeColor="#404040" Width="112px" /><asp:Button ID="o_btn_composep2" runat="server"
+                                    Text="Mesaj Yaz (Per.)" Font-Names="Arial" ForeColor="#404040" Width="112px" />
+                    <asp:Button ID="o_btn_trash" runat="server" Text="Çöp kutusu" Width="100px" Font-Names="Arial"
+                        ForeColor="#404040" /><asp:Button ID="o_btn_inbox" runat="server" Text="Gelen kutusu"
+                            Enabled="False" Width="100px" Font-Names="Arial" ForeColor="#404040" /></td>
+            </tr>
+            <tr>
+                <td>
+                </td>
+                <td>
+                </td>
+            </tr>
+        </table>
+        <asp:Label ID="o_lbl_error" runat="server" Font-Bold="True" Font-Names="Arial" Font-Size="9pt"
+            ForeColor="Red"></asp:Label><asp:SqlDataSource ID="dsPerMsg" runat="server" ConnectionString="Data Source=10.1.16.41;Initial Catalog=proje1;Persist Security Info=True;User ID=ezkuderskul;Password=alskdjfhg"
+                ProviderName="System.Data.SqlClient" SelectCommand="SELECT ID, GOND_AD, ALICI_AD, MSJ_KONU, DURUM, GOND_TARIH,ALICI_ID FROM PER_MESAJ WHERE (ALICI_ID = @ALICI_ID AND DURUM = 0) OR (ALICI_ID = @ALICI_ID AND DURUM = 1) OR (ALICI_ID = '000' AND DURUM = 8) OR (ALICI_ID = @BIRIMID AND DURUM = 7)"
+                DeleteCommand="UPDATE PER_MESAJ SET DURUM=2 WHERE ID=@ID">
+                <SelectParameters>
+                    <asp:SessionParameter Name="ALICI_ID" SessionField="id" Type="String" />
+                    <asp:SessionParameter Name="BIRIMID" SessionField="birimno" Type="String" />
+                </SelectParameters>
+            </asp:SqlDataSource>
+        <asp:SqlDataSource ID="dsOgrMsg" runat="server" ConnectionString="Data Source=10.1.16.41;Initial Catalog=proje1;Persist Security Info=True;User ID=ezkuderskul;Password=alskdjfhg"
+            ProviderName="System.Data.SqlClient" SelectCommand="SELECT     ID, GOND_AD, MSJ_KONU, DURUM, GOND_TARIH,ALICI_ID&#13;&#10;FROM         OGR_MESAJ&#13;&#10;WHERE     (ALICI_ID = @ALICI_ID) AND (DURUM = 0) OR&#13;&#10;                      (ALICI_ID = @ALICI_ID) AND (DURUM = 1) OR&#13;&#10;                      (ALICI_ID = '001') AND (DURUM = 3) OR&#13;&#10;                      (ALICI_ID = @FAKID) AND (DURUM = 4) OR&#13;&#10;                      (ALICI_ID = @BOLUMID) AND (DURUM = 5) OR&#13;&#10;                      (ALICI_ID IN&#13;&#10;                          (SELECT     KARNE2.dbo.karneler.derskod COLLATE Turkish_CS_AI&#13;&#10;                            FROM          KARNE2.dbo.karneler INNER JOIN&#13;&#10;                                                   OGR_MESAJ AS OGR_MESAJ_1 ON KARNE2.dbo.karneler.derskod COLLATE Turkish_CS_AI = OGR_MESAJ_1.ALICI_ID&#13;&#10;                            WHERE      (KARNE2.dbo.karneler.fakno = @fakno) AND (KARNE2.dbo.karneler.birim = @birim) AND &#13;&#10;                                                   (KARNE2.dbo.karneler.alyil = @alyil) AND (KARNE2.dbo.karneler.donem = @donem))) AND (DURUM = 6)"
+            DeleteCommand="UPDATE OGR_MESAJ SET DURUM = 2 WHERE ID=@ID">
+            <SelectParameters>
+                <asp:SessionParameter DefaultValue="" Name="ALICI_ID" SessionField="id" Type="String" />
+                <asp:SessionParameter DefaultValue="" Name="FAKID" SessionField="fakulte" Type="String" />
+                <asp:SessionParameter DefaultValue="" Name="BOLUMID" SessionField="bolum" Type="String" />
+                <asp:SessionParameter Name="fakno" SessionField="fakno" />
+                <asp:SessionParameter Name="birim" SessionField="bolum" />
+                <asp:SessionParameter Name="alyil" SessionField="term2" />
+                <asp:Parameter Name="donem" />
+                <asp:SessionParameter Name="TableName" SessionField="_table" />
+                <asp:SessionParameter Name="TableNameKod" SessionField="_table@derskod" />
+                <asp:SessionParameter Name="TableNameFakno" SessionField="_table@fakno" />
+                <asp:SessionParameter Name="TableNameBirim" SessionField="_table@birim" />
+            </SelectParameters>
+        </asp:SqlDataSource>
+        <asp:SqlDataSource ID="dsPerTrash" runat="server" ConnectionString="Data Source=10.1.16.41;Initial Catalog=proje1;Persist Security Info=True;User ID=ezkuderskul;Password=alskdjfhg"
+            ProviderName="System.Data.SqlClient" SelectCommand="SELECT [ID],  [GOND_AD], [MSJ_KONU], [MSJ_ICERIK], [DURUM], [GOND_TARIH] FROM [PER_MESAJ] WHERE ([ALICI_ID] = @ALICI_ID) AND DURUM = 2"
+            DeleteCommand="DELETE FROM PER_MESAJ WHERE ID=@ID">
+            <SelectParameters>
+                <asp:SessionParameter DefaultValue="" Name="ALICI_ID" SessionField="id" Type="Decimal" />
+            </SelectParameters>
+        </asp:SqlDataSource>
+        <asp:SqlDataSource ID="dsOgrTrash" runat="server" ConnectionString="Data Source=10.1.16.41;Initial Catalog=proje1;Persist Security Info=True;User ID=ezkuderskul;Password=alskdjfhg"
+            ProviderName="System.Data.SqlClient" SelectCommand="SELECT     ID, GOND_AD, MSJ_KONU, MSJ_ICERIK, DURUM, GOND_TARIH&#13;&#10;FROM         OGR_MESAJ&#13;&#10;WHERE     (ALICI_ID =@ALICI_ID) AND (DURUM = 2)"
+            DeleteCommand="DELETE FROM OGR_MESAJ WHERE ID=@ID">
+            <SelectParameters>
+                <asp:SessionParameter DefaultValue="" Name="ALICI_ID" SessionField="id" Type="String" />
+            </SelectParameters>
+        </asp:SqlDataSource>
+    </asp:Panel>
+    <asp:Panel ID="o_pnl_read" runat="server" Visible="False" Wrap="False">
+        <table>
+            <tr>
+                <td>
+                </td>
+                <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                    border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                    <strong><span style="font-size: 9pt; color: #5d7b9d; font-family: Arial">&nbsp;Konu
+                        :</span></strong></td>
+                <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                    border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                    <asp:TextBox ID="o_txt_readsub" runat="server" MaxLength="100" Width="280px" ReadOnly="True"></asp:TextBox></td>
+            </tr>
+            <tr>
+                <td>
+                </td>
+                <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                    border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                    <strong><span style="font-size: 9pt; color: #5d7b9d; font-family: Arial">&nbsp;Mesaj
+                        :</span></strong></td>
+                <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                    border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                    <asp:TextBox ID="o_txt_read" runat="server" Height="120px" TextMode="MultiLine" Width="280px"
+                        ReadOnly="True"></asp:TextBox></td>
+            </tr>
+            <tr>
+                <td>
+                </td>
+                <td>
+                </td>
+                <td style="text-align: right">
+                    <asp:Button ID="o_btn_close" runat="server" Text="Kapat" Font-Names="Arial" ForeColor="#404040" /><asp:Button
+                        ID="o_btn_reply" runat="server" Text="Yanýtla" Font-Names="Arial" ForeColor="#404040" /></td>
+            </tr>
+        </table>
+    </asp:Panel>
+    <asp:Panel ID="o_pnl_reply" runat="server" Visible="False" Wrap="False">
+        <table>
+            <tr>
+                <td>
+                </td>
+                <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                    border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                    <strong><span style="font-size: 9pt; color: #5d7b9d; font-family: Arial">&nbsp;Konu
+                        :</span></strong></td>
+                <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                    border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                    <asp:TextBox ID="o_txt_replysub" runat="server" MaxLength="100" ReadOnly="True" Width="280px"></asp:TextBox></td>
+            </tr>
+            <tr>
+                <td>
+                </td>
+                <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                    border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                    <strong><span style="font-size: 9pt; color: #5d7b9d; font-family: Arial">&nbsp;Mesaj
+                        :</span></strong></td>
+                <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                    border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                    <asp:TextBox ID="o_txt_reply" runat="server" Height="120px" ReadOnly="True" TextMode="MultiLine"
+                        Width="280px"></asp:TextBox></td>
+            </tr>
+            <tr>
+                <td>
+                </td>
+                <td>
+                </td>
+                <td style="text-align: right">
+                    <asp:Button ID="o_btn_close2" runat="server" Text="Kapat" Font-Names="Arial" ForeColor="#404040" /><asp:Button
+                        ID="o_btn_reply2" runat="server" Text="Gönder" Font-Names="Arial" ForeColor="#404040" /></td>
+            </tr>
+        </table>
+    </asp:Panel>
+    <asp:Panel ID="o_pnl_compose" runat="server" Visible="False">
+        <fieldset style="width: 360px">
+            <legend></legend>
+            <table style="table-layout: auto; border-collapse: separate">
+                <tr>
+                    <td>
+                    </td>
+                    <td colspan="3" style="text-align: left">
+                        <strong><span style="font-size: 9pt"><span style="font-family: Arial"><span style="color: #5d7b9d">
+                            &nbsp;</span><span style="text-decoration: underline; color: #5d7b9d;">Kime :</span></span></span></strong></td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <strong><span style="font-size: 9pt"><span style="font-family: Arial"><span style="color: #5d7b9d">
+                            &nbsp;Fakülte :</span></span></span></strong></td>
+                    <td colspan="3" style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <asp:DropDownList ID="o_dlist_fak" runat="server" AutoPostBack="True" DataSourceID="dsFak"
+                            DataTextField="okulad1" DataValueField="birimx" Width="328px">
+                        </asp:DropDownList></td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <asp:DropDownList ID="o_dlist_fakx" runat="server" AutoPostBack="True" Enabled="False"
+                            Width="136px">
+                            <asp:ListItem Value="-1">L&#252;tfen Se&#231;iniz</asp:ListItem>
+                            <asp:ListItem Value="0">B&#246;l&#252;m Se&#231;</asp:ListItem>
+                            <asp:ListItem Value="1">Se&#231;ilen Fak&#252;lteye</asp:ListItem>
+                        </asp:DropDownList></td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <strong><span style="font-size: 9pt; color: #5d7b9d; font-family: Arial">&nbsp;Bölüm
+                            :</span></strong></td>
+                    <td colspan="3" style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <asp:DropDownList ID="o_dlist_bolum" runat="server" AutoPostBack="True" DataSourceID="dsBol"
+                            DataTextField="bolumad1" DataValueField="birim" Enabled="False" Width="328px">
+                        </asp:DropDownList></td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <asp:DropDownList ID="o_dlist_bolumx" runat="server" AutoPostBack="True" Enabled="False"
+                            Width="136px">
+                            <asp:ListItem Value="-1">L&#252;tfen Se&#231;iniz</asp:ListItem>
+                            <asp:ListItem Value="0">&#214;ðrenci Se&#231;</asp:ListItem>
+                            <asp:ListItem Value="1">Se&#231;ilen B&#246;l&#252;me</asp:ListItem>
+                        </asp:DropDownList></td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <strong><span style="font-size: 9pt; color: #5d7b9d; font-family: Arial">&nbsp;Öðrenci
+                            :</span></strong></td>
+                    <td colspan="3" style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <asp:DropDownList ID="o_dlist_oalici" runat="server" DataSourceID="dsOgrAlici" DataTextField="ADSOYAD"
+                            DataValueField="ID" AutoPostBack="True" Enabled="False" Width="328px">
+                        </asp:DropDownList></td>
+                    <td>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                    </td>
+                    <td colspan="3" style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3;
+                        text-align: left;">
+                        <strong><span style="font-size: 9pt; color: #5d7b9d; font-family: Arial">&nbsp;Bu Dersi
+                            alan öðrencilere :</span></strong></td>
+                    <td>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <strong><span style="font-size: 9pt; color: #5d7b9d; font-family: Arial">&nbsp;Ders
+                            :</span></strong></td>
+                    <td colspan="3" style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <asp:DropDownList ID="o_dlist_dkod" runat="server" DataSourceID="dsOgrAliciKod" DataTextField="DERSID"
+                            DataValueField="derskod" AutoPostBack="True" Enabled="False" Width="328px">
+                        </asp:DropDownList></td>
+                    <td>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-top-width: 1px; border-bottom-width: 1px; border-bottom-color: black;
+                        border-top-color: black">
+                        <br />
+                    </td>
+                    <td style="border-top-width: 1px; border-bottom-width: 1px; border-bottom-color: black;
+                        border-top-color: black">
+                    </td>
+                    <td style="border-top-width: 1px; border-bottom-width: 1px; border-bottom-color: black;
+                        border-top-color: black">
+                    </td>
+                    <td style="border-top-width: 1px; border-bottom-width: 1px; border-bottom-color: black;
+                        border-top-color: black">
+                    </td>
+                    <td>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <strong><span style="font-size: 9pt; color: #5d7b9d; font-family: Arial">&nbsp;Konu
+                            :</span></strong></td>
+                    <td colspan="3" style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <asp:TextBox ID="o_txt_subject" runat="server" MaxLength="100" Width="322px"></asp:TextBox></td>
+                    <td>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <strong><span style="font-size: 9pt; color: #5d7b9d; font-family: Arial">&nbsp;Mesaj
+                            :</span></strong></td>
+                    <td colspan="3" style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <asp:TextBox ID="o_txt_compose" runat="server" Height="120px" TextMode="MultiLine"
+                            Width="322px"></asp:TextBox></td>
+                    <td>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td>
+                    </td>
+                    <td style="text-align: right" colspan="3">
+                        <asp:Button ID="o_btn_sendall" runat="server" Text="Tüm Öðrencilere Gönder" Font-Names="Arial"
+                            ForeColor="#404040" /><asp:Button ID="o_btn_send" runat="server" Text="Gönder" Font-Names="Arial"
+                                ForeColor="#404040" Enabled="False" /><asp:Button ID="o_btn_cancel" runat="server"
+                                    Text="Ýptal" Font-Names="Arial" ForeColor="#404040" /></td>
+                    <td>
+                    </td>
+                </tr>
+            </table>
+        </fieldset>
+        <asp:SqlDataSource ID="dsOgrAlici" runat="server" ConnectionString="Data Source=10.1.16.41;Initial Catalog=proje1;Persist Security Info=True;User ID=ezkuderskul;Password=alskdjfhg"
+            ProviderName="System.Data.SqlClient" SelectCommand="SELECT ID,(AD + ' ' + SOYAD) AS ADSOYAD FROM OGRENCI WHERE DURUMKOD=1 AND BIRIM=@birimx ORDER BY AD">
+            <SelectParameters>
+                <asp:ControlParameter ControlID="o_dlist_bolum" Name="birimx" PropertyName="SelectedValue" />
+            </SelectParameters>
+        </asp:SqlDataSource>
+        <asp:SqlDataSource ID="dsFak" runat="server" ConnectionString="Data Source=10.1.16.41;Initial Catalog=KARNE2;Persist Security Info=True;User ID=ezkuderskul;Password=alskdjfhg"
+            ProviderName="System.Data.SqlClient" SelectCommand="SELECT okulad1, LEFT(birim, 2) AS birimx FROM kisimlar GROUP BY okulad1, LEFT(birim, 2)">
+        </asp:SqlDataSource>
+        <asp:SqlDataSource ID="dsBol" runat="server" ConnectionString="Data Source=10.1.16.41;Initial Catalog=KARNE2;Persist Security Info=True;User ID=ezkuderskul;Password=alskdjfhg"
+            ProviderName="System.Data.SqlClient" SelectCommand="SELECT bolumad1, birim FROM kisimlar WHERE LEFT(birim,2)=@birimx">
+            <SelectParameters>
+                <asp:ControlParameter ControlID="o_dlist_fak" Name="birimx" PropertyName="SelectedValue" />
+            </SelectParameters>
+        </asp:SqlDataSource>
+        <asp:SqlDataSource ID="dsOgrAliciKod" runat="server" ConnectionString="Data Source=10.1.16.41;Initial Catalog=proje1;Persist Security Info=True;User ID=ezkuderskul;Password=alskdjfhg"
+            ProviderName="System.Data.SqlClient" SelectCommand="SELECT  derskod,(derskod + ' - ' + dersadi) AS DERSID FROM KATALOGGUZ WHERE birim = @birim">
+            <SelectParameters>
+                <asp:ControlParameter ControlID="o_dlist_bolum" Name="birim" PropertyName="SelectedValue" />
+            </SelectParameters>
+        </asp:SqlDataSource>
+    </asp:Panel>
+    &nbsp;
+    <asp:Panel ID="o_pnl_composep" runat="server" Visible="False">
+        <fieldset style="width: 360px">
+            <legend></legend>
+            <table style="table-layout: auto; border-collapse: separate">
+                <tr>
+                    <td>
+                    </td>
+                    <td colspan="3" style="text-align: left">
+                        <strong><span style="font-size: 9pt"><span style="font-family: Arial"><span style="color: #5d7b9d">
+                            &nbsp;</span><span style="text-decoration: underline; color: #5d7b9d;">Kime :</span></span></span></strong></td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <strong><span style="font-size: 9pt"><span style="font-family: Arial"><span style="color: #5d7b9d">
+                            &nbsp;Birim :</span></span></span></strong></td>
+                    <td colspan="4" style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <asp:DropDownList ID="o_dlist_birim" runat="server" AutoPostBack="True" DataSourceID="dsBirim"
+                            DataTextField="BIRIM_ADI" DataValueField="ID" Width="328px">
+                        </asp:DropDownList></td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                    </td>
+                    <td colspan="4" style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3;
+                        text-align: left">
+                        <asp:DropDownList ID="o_dlist_birimx" runat="server" AutoPostBack="True" Enabled="False"
+                            Width="136px">
+                            <asp:ListItem Value="-1">L&#252;tfen Se&#231;iniz</asp:ListItem>
+                            <asp:ListItem Value="0">Personel Se&#231;</asp:ListItem>
+                            <asp:ListItem Value="1">Se&#231;ilen Birime</asp:ListItem>
+                        </asp:DropDownList></td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <strong><span style="font-size: 9pt; color: #5d7b9d; font-family: Arial">&nbsp;Personel
+                            :</span></strong></td>
+                    <td colspan="4" style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid">
+                        <asp:DropDownList ID="o_dlist_palici" runat="server" DataSourceID="dsPerAlici" DataTextField="ADSOYAD"
+                            DataValueField="ID" AutoPostBack="True" Width="328px" Enabled="False">
+                        </asp:DropDownList></td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-top-width: 1px; border-bottom-width: 1px; border-bottom-color: black;
+                        border-top-color: black">
+                        <br />
+                    </td>
+                    <td style="border-top-width: 1px; border-bottom-width: 1px; border-bottom-color: black;
+                        border-top-color: black">
+                    </td>
+                    <td style="border-top-width: 1px; border-bottom-width: 1px; border-bottom-color: black;
+                        border-top-color: black">
+                    </td>
+                    <td colspan="2">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <strong><span style="font-size: 9pt; color: #5d7b9d; font-family: Arial">&nbsp;Konu
+                            :</span></strong></td>
+                    <td colspan="4">
+                        <asp:TextBox ID="o_txt_subjectp" runat="server" MaxLength="100" Width="322px"></asp:TextBox></td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <strong><span style="font-size: 9pt; color: #5d7b9d; font-family: Arial">&nbsp;Mesaj
+                            :</span></strong></td>
+                    <td colspan="4">
+                        <asp:TextBox ID="o_txt_composep" runat="server" Height="120px" TextMode="MultiLine"
+                            Width="322px"></asp:TextBox></td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td>
+                    </td>
+                    <td colspan="4">
+                        <asp:Button ID="o_btn_sendpall" runat="server" Text="Tüm Personele Gönder" Font-Names="Arial"
+                            ForeColor="#404040" /><asp:Button ID="o_btn_sendp" runat="server" Text="Gönder" Font-Names="Arial"
+                                ForeColor="#404040" Enabled="False" /><asp:Button ID="o_btn_cancelp" runat="server"
+                                    Text="Ýptal" Font-Names="Arial" ForeColor="#404040" /></td>
+                </tr>
+            </table>
+            <asp:SqlDataSource ID="dsPerAlici" runat="server" ConnectionString="Data Source=10.1.16.41;Initial Catalog=proje1;Persist Security Info=True;User ID=ezkuderskul;Password=alskdjfhg"
+                ProviderName="System.Data.SqlClient" SelectCommand="SELECT PERSONEL.ID,(AD + ' ' + SOYAD) AS ADSOYAD FROM PERSONEL,PERBILGI WHERE BIRIM=@BIRIM AND PERSONEL.ID=PERBILGI.RECID AND (PERBILGI.MESAJALMA<>3 OR PERBILGI.MESAJALMA<>1) ORDER BY AD">
+                <SelectParameters>
+                    <asp:ControlParameter ControlID="o_dlist_birim" Name="BIRIM" PropertyName="SelectedValue" />
+                </SelectParameters>
+            </asp:SqlDataSource>
+            <asp:SqlDataSource ID="dsBirim" runat="server" ConnectionString="Data Source=10.1.16.9;Initial Catalog=P2005;Persist Security Info=True;User ID=personel;Password=a!s'f+g%h&j/k(l)þ=;"
+                ProviderName="System.Data.SqlClient" SelectCommand="SELECT ID,BIRIM_ADI FROM T_BIRIM WHERE SIL=0 AND ID>0 ORDER BY BIRIM_ADI">
+            </asp:SqlDataSource>
+        </fieldset>
+    </asp:Panel>
+    <br />
+    <asp:Panel ID="o_pnl_compose2" runat="server" Visible="False">
+        <fieldset style="width: 360px">
+            <legend></legend>
+            <table style="table-layout: auto; border-collapse: separate">
+                <tr>
+                    <td>
+                    </td>
+                    <td colspan="2" style="text-align: left">
+                        <strong><span style="font-size: 9pt"><span style="font-family: Arial"><span style="color: #5d7b9d">
+                            &nbsp;</span><span style="text-decoration: underline; color: #5d7b9d;">Kime :</span></span></span></strong></td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <strong><span style="font-size: 9pt"><span style="font-family: Arial"><span style="color: #5d7b9d">
+                            &nbsp;Fakülte :</span></span></span></strong></td>
+                    <td colspan="3" 
+                        style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <asp:DropDownList ID="o_dlist_fak2" runat="server" AutoPostBack="True" DataSourceID="dsFak"
+                            DataTextField="okulad1" DataValueField="birimx" Width="328px">
+                        </asp:DropDownList></td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <strong><span style="font-size: 9pt; color: #5d7b9d; font-family: Arial">&nbsp;Bölüm
+                            :</span></strong></td>
+                    <td colspan="3" 
+                        style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <asp:DropDownList ID="o_dlist_bolum2" runat="server" AutoPostBack="True" DataSourceID="dsBol2"
+                            DataTextField="bolumad1" DataValueField="birim" Enabled="False" Width="328px">
+                        </asp:DropDownList></td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <strong><span style="font-size: 9pt; color: #5d7b9d; font-family: Arial">&nbsp;Öðrenci
+                            :</span></strong></td>
+                    <td colspan="3" 
+                        style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <asp:DropDownList ID="o_dlist_oalici2" runat="server" DataSourceID="dsOgrAlici2"
+                            DataTextField="ADSOYAD" DataValueField="ID" AutoPostBack="True" Enabled="False"
+                            Width="328px">
+                        </asp:DropDownList></td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-top-width: 1px; border-bottom-width: 1px; border-bottom-color: black;
+                        border-top-color: black">
+                        <br />
+                    </td>
+                    <td style="border-top-width: 1px; border-bottom-width: 1px; border-bottom-color: black;
+                        border-top-color: black">
+                    </td>
+                    <td style="border-top-width: 1px; border-bottom-width: 1px; border-bottom-color: black;
+                        border-top-color: black">
+                    </td>
+                    <td style="border-top-width: 1px; border-bottom-width: 1px; border-bottom-color: black;
+                        border-top-color: black">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <strong><span style="font-size: 9pt; color: #5d7b9d; font-family: Arial">&nbsp;Konu
+                            :</span></strong></td>
+                    <td colspan="3" 
+                        style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <asp:TextBox ID="o_txt_subject2" runat="server" MaxLength="100" Width="322px" Enabled="False"></asp:TextBox></td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <strong><span style="font-size: 9pt; color: #5d7b9d; font-family: Arial">&nbsp;Mesaj
+                            :</span></strong></td>
+                    <td colspan="3">
+                        <asp:TextBox ID="o_txt_compose2" runat="server" Height="120px" TextMode="MultiLine"
+                            Width="322px" Enabled="False"></asp:TextBox></td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td>
+                    </td>
+                    <td style="text-align: right" colspan="3">
+                        <asp:Button ID="o_btn_send2" runat="server" Text="Gönder" Font-Names="Arial" ForeColor="#404040"
+                            Enabled="False" /><asp:Button ID="o_btn_cancel2" runat="server" Text="Ýptal" Font-Names="Arial"
+                                ForeColor="#404040" /></td>
+                </tr>
+            </table>
+            <asp:SqlDataSource ID="dsBol2" runat="server" ConnectionString="Data Source=10.1.16.41;Initial Catalog=KARNE2;Persist Security Info=True;User ID=ezkuderskul;Password=alskdjfhg"
+                ProviderName="System.Data.SqlClient" SelectCommand="SELECT bolumad1, birim FROM kisimlar ORDER BY bolumad1">
+            </asp:SqlDataSource>
+            <asp:SqlDataSource ID="dsOgrAlici2" runat="server" ConnectionString="Data Source=10.1.16.41;Initial Catalog=proje1;Persist Security Info=True;User ID=ezkuderskul;Password=alskdjfhg"
+                ProviderName="System.Data.SqlClient" SelectCommand="SELECT ID,(AD + ' ' + SOYAD) AS ADSOYAD FROM OGRENCI WHERE DURUMKOD=1 AND BIRIM=@birimx ORDER BY AD">
+                <SelectParameters>
+                    <asp:ControlParameter ControlID="o_dlist_bolum2" Name="birimx" PropertyName="SelectedValue" />
+                </SelectParameters>
+            </asp:SqlDataSource>
+        </fieldset>
+    </asp:Panel>
+    <br />
+    <asp:Panel ID="o_pnl_composep2" runat="server" Visible="False">
+        <fieldset style="width: 360px">
+            <legend></legend>
+            <table style="table-layout: auto; border-collapse: separate">
+                <tr>
+                    <td>
+                    </td>
+                    <td colspan="2" style="text-align: left">
+                        <strong><span style="font-size: 9pt"><span style="font-family: Arial"><span style="color: #5d7b9d">
+                            &nbsp;</span><span style="text-decoration: underline; color: #5d7b9d;">Kime :</span></span></span></strong></td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <strong><span style="font-size: 9pt"><span style="font-family: Arial"><span style="color: #5d7b9d">
+                            &nbsp;Birim :</span></span></span></strong></td>
+                    <td colspan="4" style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <asp:DropDownList ID="o_dlist_birim2" runat="server" AutoPostBack="True" DataSourceID="dsBirim2"
+                            DataTextField="BIRIM_ADI" DataValueField="ID" Width="328px">
+                        </asp:DropDownList></td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <strong><span style="font-size: 9pt; color: #5d7b9d; font-family: Arial">&nbsp;Personel
+                            :</span></strong></td>
+                    <td colspan="4" style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <asp:DropDownList ID="o_dlist_palici2" runat="server" AutoPostBack="True" DataSourceID="dsPerAlici2"
+                            DataTextField="ADSOYAD" DataValueField="ID" Width="328px" Enabled="False">
+                        </asp:DropDownList></td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-top-width: 1px; border-bottom-width: 1px; border-bottom-color: black;
+                        border-top-color: black">
+                        <br />
+                    </td>
+                    <td style="border-top-width: 1px; border-bottom-width: 1px; border-bottom-color: black;
+                        border-top-color: black">
+                    </td>
+                    <td style="border-top-width: 1px; border-bottom-width: 1px; border-bottom-color: black;
+                        border-top-color: black" colspan="3">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <strong><span style="font-size: 9pt; color: #5d7b9d; font-family: Arial">&nbsp;Konu
+                            :</span></strong></td>
+                    <td colspan="4" style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <asp:TextBox ID="o_txt_subjectp2" runat="server" MaxLength="100" Width="322px" Enabled="False"></asp:TextBox></td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <strong><span style="font-size: 9pt; color: #5d7b9d; font-family: Arial">&nbsp;Mesaj
+                            :</span></strong></td>
+                    <td colspan="4" style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <asp:TextBox ID="o_txt_composep2" runat="server" Height="120px" TextMode="MultiLine"
+                            Width="322px" Enabled="False"></asp:TextBox></td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td>
+                    </td>
+                    <td colspan="4" style="text-align: right">
+                        <asp:Button ID="o_btn_sendp2" runat="server" Text="Gönder" Font-Names="Arial" ForeColor="#404040"
+                            Enabled="False" /><asp:Button ID="o_btn_cancelp2" runat="server" Text="Ýptal" Font-Names="Arial"
+                                ForeColor="#404040" /></td>
+                </tr>
+            </table>
+            <asp:SqlDataSource ID="dsPerAlici2" runat="server" ConnectionString="Data Source=10.1.16.41;Initial Catalog=proje1;Persist Security Info=True;User ID=ezkuderskul;Password=alskdjfhg"
+                ProviderName="System.Data.SqlClient" SelectCommand="SELECT PERSONEL.ID,(AD + ' ' + SOYAD) AS ADSOYAD FROM PERSONEL,PERBILGI WHERE (BIRIM=@BIRIM AND PERSONEL.ID=PERBILGI.RECID) AND (PERBILGI.MESAJALMA=0) OR (PERBILGI.MESAJALMA=3) OR (PERBILGI.MESAJALMA=4 AND PERBILGI.BOLUM=@BOLUM) OR (PERBILGI.MESAJALMA=5 AND PERBILGI.FAKULTE=@FAKULTE) ORDER BY AD">
+                <SelectParameters>
+                    <asp:ControlParameter ControlID="o_dlist_birim2" Name="BIRIM" PropertyName="SelectedValue" />
+                    <asp:SessionParameter DefaultValue="" Name="BOLUM" SessionField="bolum" />
+                    <asp:SessionParameter Name="FAKULTE" SessionField="fakulte" />
+                </SelectParameters>
+            </asp:SqlDataSource>
+            <asp:SqlDataSource ID="dsBirim2" runat="server" ConnectionString="Data Source=10.1.16.9;Initial Catalog=P2005;Persist Security Info=True;User ID=personel;Password=a!s'f+g%h&j/k(l)þ=;"
+                ProviderName="System.Data.SqlClient" SelectCommand="SELECT ID,BIRIM_ADI FROM T_BIRIM WHERE SIL=0 AND ID>0 ORDER BY BIRIM_ADI">
+            </asp:SqlDataSource>
+        </fieldset>
+    </asp:Panel>
+    &nbsp;
+</asp:Content>

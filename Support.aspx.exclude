@@ -1,0 +1,59 @@
+<%@ Page Language="VB" MasterPageFile="~/MasterPage.master" AutoEventWireup="false"
+    CodeFile="Support.aspx.vb" Inherits="Support" Title="Untitled Page" %>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="o_cph_main" runat="Server">
+    <div id="o_div_support" style="margin-left: 200px; height: auto">
+        <span style="font-size: 11pt; color: #330000"><span style="color: #ff9933">E-kampüs</span>
+            ile ilgili olmayan soru veya sorunlarýnýz yanýtlanamaz.<br />
+            <br />
+            Sýnav tarihleri ve sonuçlarý, öðrenci olarak aldýðýnýz dersler vs.<br />
+            þuan E-Kampüs sistemine dahil olmadýðýndan,<br />
+            bu konular ile alakalý sorular yanýtlanmayacaktýr.<br />
+            <span style="color: #cc0000"></span></span>
+        <asp:Panel ID="o_pnl_compose" runat="server" Wrap="False">
+            <table>
+                <tr>
+                    <td>
+                    </td>
+                    <td colspan="2" style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; text-align: left">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <strong><span style="font-size: 9pt; color: #5d7b9d; font-family: Arial">&nbsp;Konu
+                            :</span></strong></td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <asp:TextBox ID="o_txt_sub" runat="server" MaxLength="100" Width="280px"></asp:TextBox></td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <strong><span style="font-size: 9pt; color: #5d7b9d; font-family: Arial">&nbsp;Mesaj
+                            :</span></strong></td>
+                    <td style="border-right: ghostwhite 1px solid; border-top: ghostwhite 1px solid;
+                        border-left: ghostwhite 1px solid; border-bottom: ghostwhite 1px solid; background-color: #f7f6f3">
+                        <asp:TextBox ID="o_txt_msg" runat="server" Height="120px" TextMode="MultiLine" Width="280px"></asp:TextBox></td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td>
+                    </td>
+                    <td style="text-align: right">
+                        <asp:Button ID="o_btn_send" runat="server" Font-Names="Arial" ForeColor="#404040"
+                            Text="Gönder" /></td>
+                </tr>
+            </table>
+            <asp:Label ID="o_lbl_notice" runat="server" Font-Bold="True" Font-Names="Arial" Font-Size="9pt"
+                ForeColor="Red"></asp:Label>
+    </asp:Panel>
+        </div>
+</asp:Content>
+

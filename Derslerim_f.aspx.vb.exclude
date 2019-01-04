@@ -1,0 +1,147 @@
+﻿Imports System.Data
+Imports System.Data.SqlClient
+Imports System.Configuration
+
+Partial Class Derslerim_f
+    Inherits System.Web.UI.Page
+
+    Private conn As New SqlConnection(ConfigurationManager.AppSettings("conn1"))
+
+    Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        If Session("kisino") = 0 Or Session("kisino") Is Nothing Then
+            Response.Redirect("Login.aspx", True)
+            Exit Sub
+        End If
+
+        'Session("kisino") = 846
+
+        If Session("parola_zorla") = True Then
+            Response.Redirect("Pass.aspx")
+            Exit Sub
+        End If
+
+        'Response.Redirect("Default.aspx")
+        'Exit Sub
+
+        lblUyari.Visible = False
+        lblUyari.Text = ""
+
+        If Page.IsPostBack = False Then
+            derslerGetir()
+        End If
+    End Sub
+
+    Private Sub derslerGetir()
+        Try
+            Dim command As New SqlCommand("stp_YNS_ATANAN_DERSLER", conn)
+            command.CommandType = Data.CommandType.StoredProcedure
+
+            With command.Parameters
+                .AddWithValue("ATANANSICIL", Session("kisino"))
+                .AddWithValue("YIL", 2009)
+                .AddWithValue("DONEM", 3)
+            End With
+
+            Dim Adapter As SqlDataAdapter = New SqlDataAdapter(command)
+
+            Dim dt As New DataTable
+
+            If conn.State <> Data.ConnectionState.Open Then conn.Open()
+            Adapter.Fill(dt)
+            If conn.State = Data.ConnectionState.Open Then conn.Close()
+
+            Session("DT_NOTLAR") = dt
+            gridDersler.DataSource = dt
+            gridDersler.DataBind()
+
+            'If Not dt.Rows.Count > 0 Then divDersler.Visible = False Else divDersler.Visible = True
+        Catch ex As Exception
+            lblUyari.Visible = True
+            'lblUyari.Text = "Bir hata oluştu.Bilgi İşlem' e başvurunuz."
+            lblUyari.Text = ex.Message
+        Finally
+            If conn.State = Data.ConnectionState.Open Then conn.Close()
+        End Try
+    End Sub
+
+    Private Sub yonlendir(ByVal rowindex As Integer, ByVal notTip As String)
+        Session("KATID") = gridDersler.DataKeys(rowindex)("KATID")
+        Session("ATANAN_ID") = gridDersler.DataKeys(rowindex)("ATANAN_ID")
+        Session("DERSKOD") = gridDersler.DataKeys(rowindex)("DERSKOD")
+        Session("DERSAD") = gridDersler.DataKeys(rowindex)("DERSAD")
+        Session("VIZE_ONAY") = gridDersler.DataKeys(rowindex)("VIZE_ONAY")
+        Session("FINAL_ONAY") = gridDersler.DataKeys(rowindex)("FINAL_ONAY")
+        Session("BUT_ONAY") = gridDersler.DataKeys(rowindex)("BUT_ONAY")
+        Session("DERS_BIRIM") = gridDersler.DataKeys(rowindex)("BIRIM")
+        Session("BAGILKODU") = gridDersler.DataKeys(rowindex)("BAGILKODU")
+
+        If notTip = "Bagil" Then
+            Response.Redirect("Bagil.aspx")
+        ElseIf notTip = "Klasik" Then
+            Response.Redirect("Klasik.aspx")
+        Else
+            Response.Redirect("Kredisiz.aspx")
+        End If
+    End Sub
+
+    Protected Sub grid_dersler_RowCreated(ByVal sender As Object, ByVal e As System.Web.UI.WebControls.GridViewRowEventArgs) Handles gridDersler.RowCreated
+        'If e.Row.RowType = DataControlRowType.DataRow Then
+        '    CType(e.Row.FindControl("btnVize"), Button).Attributes.Add("onclick", "alert('Notları Onayla butonunu kullanarak notları onaylamadığınız sürece" & _
+        '                             " notlar öğrenciler tarafından görüntülenemeyecektir!\n" & _
+        '                             " Ayrıca notlar onaylandıktan sonra düzeltmeniz mümkün olmayacaktır.');")
+        'End If
+    End Sub
+
+    Protected Sub grid_dersler_RowDataBound(ByVal sender As Object, ByVal e As System.Web.UI.WebControls.GridViewRowEventArgs) Handles gridDersler.RowDataBound
+        If e.Row.RowType = DataControlRowType.DataRow Then
+            Dim hocasay As Integer = gridDersler.DataKeys(e.Row.RowIndex)("HOCASAY")
+            If hocasay > 1 Then
+                CType(e.Row.FindControl("btnBagil"), Button).Attributes.Add("onclick", "alert('DİKKAT!\n\nSeçilen ders " & hocasay & _
+                                         " farklı ders sorumlusu tarafından verilmektedir.\n" & _
+                                         "Lütfen sadece dersinizi almış olan öğrencilere not girişi yaptığınızdan emin olunuz.\n\n" & _
+                                         "İlk kez not girişi yaptığınız öğrenciler daha sonra sadece sizin listenizde gözükecektir.\n" & _
+                                         "Dersinizi almayan öğrencilerin not alanlarını boş bırakınız.');")
+
+                CType(e.Row.FindControl("btnKlasik"), Button).Attributes.Add("onclick", "alert('DİKKAT!\n\nSeçilen ders " & hocasay & _
+                                         " farklı ders sorumlusu tarafından verilmektedir.\n" & _
+                                         "Lütfen sadece dersinizi almış olan öğrencilere not girişi yaptığınızdan emin olunuz.\n\n" & _
+                                         "İlk kez not girişi yaptığınız öğrenciler daha sonra sadece sizin listenizde gözükecektir.\n" & _
+                                         "Dersinizi almayan öğrencilerin not alanlarını boş bırakınız.');")
+
+                CType(e.Row.FindControl("btnKredisiz"), Button).Attributes.Add("onclick", "alert('DİKKAT!\n\nSeçilen ders " & hocasay & _
+                                         " farklı ders sorumlusu tarafından verilmektedir.\n" & _
+                                         "Lütfen sadece dersinizi almış olan öğrencilere not girişi yaptığınızdan emin olunuz.\n\n" & _
+                                         "İlk kez not girişi yaptığınız öğrenciler daha sonra sadece sizin listenizde gözükecektir.\n" & _
+                                         "Dersinizi almayan öğrencilerin not alanlarını boş bırakınız.');")
+            End If
+        End If
+    End Sub
+
+    Protected Sub btnBagil_Click(ByVal sender As Object, ByVal e As System.EventArgs)
+        Dim button As Button = CType(sender, Button)
+        Dim grow As GridViewRow = CType(button.Parent.Parent, GridViewRow)
+        Dim rowIndex As Integer = grow.RowIndex
+
+        yonlendir(rowIndex, "Bagil")
+    End Sub
+
+    Protected Sub btnKlasik_Click(ByVal sender As Object, ByVal e As System.EventArgs)
+        Dim button As Button = CType(sender, Button)
+        Dim grow As GridViewRow = CType(button.Parent.Parent, GridViewRow)
+        Dim rowIndex As Integer = grow.RowIndex
+
+        yonlendir(rowIndex, "Klasik")
+    End Sub
+
+    Protected Sub btnKredisiz_Click(ByVal sender As Object, ByVal e As System.EventArgs)
+        Dim button As Button = CType(sender, Button)
+        Dim grow As GridViewRow = CType(button.Parent.Parent, GridViewRow)
+        Dim rowIndex As Integer = grow.RowIndex
+
+        yonlendir(rowIndex, "Kredisiz")
+    End Sub
+
+    Protected Sub imgbBirlestir_Click(ByVal sender As Object, ByVal e As System.Web.UI.ImageClickEventArgs) Handles imgbBirlestir.Click
+
+    End Sub
+End Class

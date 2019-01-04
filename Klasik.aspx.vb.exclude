@@ -1,0 +1,424 @@
+﻿Imports BnHesap
+Imports Microsoft.VisualBasic
+Imports System.Data
+Imports System.Data.SqlClient
+Imports System.Configuration
+
+Partial Class Klasik
+    Inherits System.Web.UI.Page
+
+    Private conn As New SqlConnection(ConfigurationManager.AppSettings("conn1"))
+
+    Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        If Session("kisino") = 0 Or Session("kisino") Is Nothing Then
+            Response.Redirect("Login.aspx", True)
+            Exit Sub
+        End If
+
+        'Response.Redirect("Default.aspx")
+        'Exit Sub
+
+        lblUyari.Visible = False
+        lblUyari.Text = ""
+        lblDerskodu.Text = CType(Session("DERSKOD"), String) & " - " & CType(Session("DERSAD"), String)
+
+        If Page.IsPostBack = False Then
+            bnoKodlarGetir()
+            notlarGetir()
+        End If
+
+        btnKaydet.Attributes.Add("onclick", "alert('Notlar yayınlanmasına onay vermediğiniz sürece öğrenciler tarafından görüntülenemeyecektir!');")
+    End Sub
+
+    Protected Sub btnHesapla_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles btnHesapla.Click
+        'notToparla(False)
+        Session("EKSIK_NOT") = False
+        populateData(False)
+        ortHesapla()
+    End Sub
+
+    Protected Sub btnKaydet_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles btnKaydet.Click
+        populateData(False)
+        ortHesapla()
+        populateData(True)
+    End Sub
+
+    Private Function convertToDouble(ByVal dr As DataRow) As Double
+        If dr Is Nothing Then
+            Return 0
+        Else
+            Return Convert.ToDouble(dr("HBN").ToString())
+        End If
+    End Function
+
+    Private Sub ortHesapla()
+        'Bu kodları değiştirmeyin!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        'Bağıl değerlendirme ile klasik değerlendirmenin bağıl kodlar tablosunu algılama biçimleri farklı
+        'Yani;
+        '
+        'Klasik sistem:
+        'hbnot = Math.Round((vize_not * (ddlVizfOran.SelectedValue / 100)) + (final_not * ((100 - ddlVizfOran.SelectedValue) / 100)))
+        'Dim str As String = "MIN_DEGER<=" & hbnot & " AND MAX_DEGER>=" & hbnot
+        '
+        'Bağıl sistem:
+        'bagilnot = Math.Round(bagilnot, 2)
+        'Dim str As String = "MIN_DEGER<" & bagilnot & " AND MAX_DEGER>=" & bagilnot
+
+
+
+        Try
+            Dim dt As New DataTable
+
+            dt = CType(Session("DT_NOTLAR"), DataTable)
+
+            Dim listeCount As Integer = dt.Rows.Count
+
+            bnoKodlarGetir()
+            Dim dtBnoKodlar As New DataTable
+            dtBnoKodlar = CType(Session("BNO_KODLISTE"), DataTable)
+
+            Dim notKod As String = ""
+            Dim vize_not As Double = 0
+            Dim final_not As Double = 0
+            Dim y_vize_not As Double = 0
+            Dim y_final_not As Double = 0
+            Dim hbnot As Double = 0
+
+            For i As Integer = 0 To listeCount - 1
+
+                vize_not = IIf(IsNumeric(dt.Rows(i)("VIZE_ORT")), dt.Rows(i)("VIZE_ORT"), 0)
+                final_not = IIf(IsNumeric(dt.Rows(i)("FINAL_NOT")), dt.Rows(i)("FINAL_NOT"), 0)
+
+                vize_not = Math.Max(Math.Min(vize_not, 100), 0)
+                final_not = Math.Max(Math.Min(final_not, 100), 0)
+
+                If dt.Rows(i)("FINAL_DURUM") = 0 Then final_not = 0
+                y_vize_not = (vize_not * ddlVizfOran.SelectedValue) / 100
+                y_final_not = (final_not * (100 - ddlVizfOran.SelectedValue)) / 100
+                hbnot = (y_vize_not + y_final_not)
+                hbnot = Math.Round(hbnot, MidpointRounding.AwayFromZero)
+                'hbnot = Math.Round(((vize_not * (ddlVizfOran.SelectedValue / 100)) + (final_not * ((100 - ddlVizfOran.SelectedValue) / 100))), MidpointRounding.AwayFromZero)
+
+                dt.Rows(i)("HBN") = hbnot
+
+                Dim str As String = "MIN_DEGER<=" & hbnot & " AND MAX_DEGER>=" & hbnot
+                str = str.Replace(",", ".")
+
+                If hbnot = 0 Then
+                    notKod = "F3"
+                Else
+                    notKod = dtBnoKodlar.Select(str)(0)("BN_KOD")
+                End If
+
+                If dt.Rows(i)("BNO") <> "EK" Then dt.Rows(i)("BNO") = notKod
+
+                If dt.Rows(i)("FINAL_DURUM") = 0 Then
+                    dt.Rows(i)("FINAL_NOT") = 0
+                    dt.Rows(i)("BNO") = "F2"
+                Else
+                    If final_not < 50 Then
+                        If dt.Rows(i)("BNO") <> "EK" Then dt.Rows(i)("BNO") = "F3"
+                    End If
+                End If
+
+                If dt.Rows(i)("DEVAM_DURUM") = 0 Then
+                    dt.Rows(i)("HBN") = 0
+                    dt.Rows(i)("FINAL_NOT") = 0
+                    dt.Rows(i)("BNO") = "F1"
+                End If
+
+                dt.Rows(i)("FINAL_GECTI") = dtBnoKodlar.Select(str)(0)("GECTI")
+            Next
+
+            Dim hbndizi(listeCount - 1) As Double
+            Dim dr(listeCount - 1) As DataRow
+
+            dt.Rows.CopyTo(dr, 0)
+            hbndizi = Array.ConvertAll(dr, New Converter(Of DataRow, Double)(AddressOf convertToDouble))
+
+            Dim bno As New BnHesap
+            Dim genelOrtalama As Double = bno.Average(hbndizi)
+
+            lblSinifOrtalama.Text = "Genel Ortalama = " & Math.Round(genelOrtalama, 2)
+            lblSnfTop.Text = "Sınıf Toplamı = " & dt.Rows.Count & " Kişi"
+
+            gridNotliste.DataSource = dt
+            gridNotliste.DataBind()
+
+        Catch ex As Exception
+            lblUyari.Visible = True
+            lblUyari.Text = "Bir hata oluştu.Bilgi İşlem' e başvurunuz."
+            'lblUyari.Text = ex.Message
+        End Try
+    End Sub
+
+    Private Sub notlarGetir()
+        Try
+            Dim command As New SqlCommand("stp_YNS_NOTLAR_GETIR", conn)
+            command.CommandType = Data.CommandType.StoredProcedure
+
+            With command.Parameters
+                .AddWithValue("ATANAN_ID", Session("ATANAN_ID"))
+                .AddWithValue("YIL", 2009)
+                .AddWithValue("DONEM", 3)
+                .AddWithValue("KATID", Session("KATID"))
+                .AddWithValue("NOTTIP", "Klasik")
+                .AddWithValue("SINAVTIP", "Final")
+            End With
+
+            Dim Adapter As SqlDataAdapter = New SqlDataAdapter(command)
+
+            Dim dt As New DataTable
+
+            If conn.State <> Data.ConnectionState.Open Then conn.Open()
+            Adapter.Fill(dt)
+            If conn.State = Data.ConnectionState.Open Then conn.Close()
+
+            Session("DT_NOTLAR") = dt
+            gridNotliste.DataSource = dt
+            gridNotliste.DataBind()
+
+            If Not dt.Rows.Count > 0 Then divDersler.Visible = False Else divDersler.Visible = True
+        Catch ex As Exception
+            lblUyari.Visible = True
+            lblUyari.Text = "Bir hata oluştu.Bilgi İşlem' e başvurunuz."
+            'lblUyari.Text = ex.Message
+        Finally
+            If conn.State = Data.ConnectionState.Open Then conn.Close()
+        End Try
+    End Sub
+
+    Private Sub populateData(ByVal kayit As Boolean)
+        Dim rowCount As Integer = gridNotliste.Rows.Count
+
+        If rowCount > 0 Then
+            Try
+                Dim dt As New DataTable
+                dt = CType(Session("DT_NOTLAR"), DataTable)
+
+                Dim idler As New StringBuilder
+                Dim bn_degerlist As New StringBuilder
+                Dim finaller As New StringBuilder
+                Dim finaldurumlar As New StringBuilder
+                Dim finalgectiler As New StringBuilder
+                Dim hbnotlar As New StringBuilder
+                Dim bnokodlar As New StringBuilder
+                Dim devamlar As New StringBuilder
+
+                Dim id As Long = 0
+                Dim bn_deger As Integer = 0
+                Dim final As Integer = 0
+                Dim hbn As Double = 0
+
+                Dim bno As String = ""
+                Dim devam As Boolean = False
+                Dim finaldurum As Boolean = False
+                Dim finalgecti As Boolean = False
+
+                Dim bnokod As String = ""
+
+                For i As Integer = 0 To rowCount - 1
+                    If idler.Length > 0 Then
+                        idler.Append(",")
+                        finaller.Append(",")
+                        finaldurumlar.Append(",")
+                        finalgectiler.Append(",")
+                        hbnotlar.Append(",")
+                        bnokodlar.Append(",")
+                        devamlar.Append(",")
+                        bn_degerlist.Append(",")
+                    End If
+
+                    id = DirectCast(gridNotliste.DataKeys(i)("ID"), Long)
+                    bn_deger = CType(gridNotliste.DataKeys(i)("BN_DEGERLENDIR"), Integer)
+
+                    final = Replace(DirectCast(gridNotliste.Rows(i).FindControl("txtBut"), TextBox).Text.Trim, " ", 0)
+                    finaldurum = DirectCast(gridNotliste.Rows(i).FindControl("ddlBut"), DropDownList).SelectedValue
+                    finalgecti = dt.Rows(i)("FINAL_GECTI")
+                    hbn = CType(DirectCast(gridNotliste.Rows(i).FindControl("lblHbn"), Label).Text, Double)
+                    bno = DirectCast(gridNotliste.Rows(i).FindControl("ddlBno"), DropDownList).SelectedValue
+                    devam = 1 'DirectCast(gridNotliste.Rows(i).FindControl("ddlDevam"), DropDownList).SelectedValue
+
+                    If kayit = True Then
+                        idler.Append(id)
+                        finaller.Append(final)
+                        finaldurumlar.Append(finaldurum)
+                        finalgectiler.Append(finalgecti)
+                        hbnotlar.Append(hbn)
+                        bnokodlar.Append(bno)
+                        devamlar.Append(devam)
+                        bn_degerlist.Append(bn_deger)
+                    End If
+
+                    dt.Rows(i)("BNO") = bno
+                    dt.Rows(i)("HBN") = hbn
+                    dt.Rows(i)("DEVAM_DURUM") = devam
+                    dt.Rows(i)("FINAL_NOT") = final
+                    dt.Rows(i)("FINAL_DURUM") = finaldurum
+                Next
+
+                gridNotliste.DataSource = dt
+                gridNotliste.DataBind()
+                Session("DT_NOTLAR") = dt
+
+                If kayit = True Then
+                    notlarKaydet(idler.ToString, bn_degerlist.ToString, finaller.ToString, finaldurumlar.ToString, bnokodlar.ToString, hbnotlar.ToString, devamlar.ToString, finalgectiler.ToString)
+                End If
+            Catch ex As Exception
+                lblUyari.Visible = True
+                lblUyari.Text = "Bir hata oluştu.Bilgi İşlem' e başvurunuz."
+                'lblUyari.Text = ex.Message
+            End Try
+        End If
+    End Sub
+
+    Private Sub notlarKaydet(ByVal idler As String, ByVal bn_degerlist As String, ByVal finaller As String, ByVal finaldurumlar As String, ByVal bnokodlar As String, ByVal hbnotlar As String, ByVal devamlar As String, ByVal finalgectiler As String)
+        Try
+            Dim command As New SqlCommand("stp_YNS_FINAL_NOTLAR_GIR", conn)
+            command.CommandType = Data.CommandType.StoredProcedure
+
+            With command.Parameters
+                .AddWithValue("ATANAN_IDLER", Session("ATANAN_ID"))
+                .AddWithValue("IDLER", idler)
+                '.AddWithValue("DEVAMLAR", devamlar)
+                .AddWithValue("BNOKODLAR", bnokodlar)
+                .AddWithValue("FINALLER", finaller)
+                .AddWithValue("FINALDURUMLAR", finaldurumlar)
+                .AddWithValue("HBNOTLAR", hbnotlar)
+                .AddWithValue("BN_DEGERLIST", bn_degerlist)
+                .AddWithValue("FINALGECTILER", finalgectiler)
+                .AddWithValue("NOTTIP", "Klasik")
+            End With
+
+            Dim returnValue As SqlParameter
+            returnValue = New SqlParameter("RETURNVALUE", Data.SqlDbType.Int)
+            returnValue.Direction = Data.ParameterDirection.ReturnValue
+            command.Parameters.Add(returnValue)
+
+
+            If conn.State <> Data.ConnectionState.Open Then conn.Open()
+            command.ExecuteNonQuery()
+            If conn.State = Data.ConnectionState.Open Then conn.Close()
+
+            If returnValue.Value = 100 Then
+                notlarGetir()
+                lblUyari.Visible = True
+                lblUyari.Text = "Notlar başarıyla kaydedildi."
+            End If
+
+        Catch ex As Exception
+            lblUyari.Visible = True
+            lblUyari.Text = "Bir hata oluştu.Bilgi İşlem' e başvurunuz."
+            'lblUyari.Text = ex.Message
+        Finally
+            If conn.State = Data.ConnectionState.Open Then conn.Close()
+        End Try
+    End Sub
+
+    Private Sub bnoKodlarGetir()
+        Try
+            Dim bnoDuzeyID As Integer = 0
+
+            'BAGILKODU = 1 , Fakülte, YO
+            'BAGILKODU = 2 , MYO
+            'BAGILKODU = 3 , Enstitü
+
+            If Session("BAGILKODU") = 3 Then
+                bnoDuzeyID = 5
+            Else
+                bnoDuzeyID = 6
+            End If
+
+            Dim command As New SqlCommand("stp_YNS_BNOKODLAR_GETIR", conn)
+            command.CommandType = Data.CommandType.StoredProcedure
+
+            With command.Parameters
+                .AddWithValue("SINIFDUZEYID", bnoDuzeyID)
+            End With
+
+            Dim Adapter As SqlDataAdapter = New SqlDataAdapter(command)
+            Dim dt As New DataTable
+
+            If conn.State <> Data.ConnectionState.Open Then conn.Open()
+            Adapter.Fill(dt)
+            If conn.State = Data.ConnectionState.Open Then conn.Close()
+
+            dt.Rows.Add(dt.NewRow)
+            dt.Rows.Add(dt.NewRow)
+            dt.Rows.Add(dt.NewRow)
+
+            dt.Rows.InsertAt(dt.NewRow, 0)
+            dt.Rows(0)("BN_KOD") = 0
+            dt.Rows(dt.Rows.Count - 1)("BN_KOD") = "F1"
+            dt.Rows(dt.Rows.Count - 2)("BN_KOD") = "F2"
+            dt.Rows(dt.Rows.Count - 3)("BN_KOD") = "EK"
+            Session("BNO_KODLISTE") = dt
+        Catch ex As Exception
+            lblUyari.Visible = True
+            lblUyari.Text = "Bir hata oluştu.Bilgi İşlem' e başvurunuz."
+            'lblUyari.Text = ex.Message
+        Finally
+            If conn.State = Data.ConnectionState.Open Then conn.Close()
+        End Try
+    End Sub
+
+    Protected Sub btnOnayVer_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles btnOnayVer.Click
+        notOnayla()
+    End Sub
+
+    Private Sub notOnayla()
+        Try
+            Dim command As New SqlCommand("stp_YNS_NOT_ONAY", conn)
+            command.CommandType = Data.CommandType.StoredProcedure
+
+            With command.Parameters
+                .AddWithValue("ATANAN_ID", Session("ATANAN_ID"))
+                .AddWithValue("NOTTYPE", "Final")
+            End With
+
+            Dim returnValue As SqlParameter
+            returnValue = New SqlParameter("RETURNVALUE", Data.SqlDbType.Int)
+            returnValue.Direction = Data.ParameterDirection.ReturnValue
+            command.Parameters.Add(returnValue)
+
+            If conn.State <> Data.ConnectionState.Open Then conn.Open()
+            command.ExecuteNonQuery()
+            If conn.State = Data.ConnectionState.Open Then conn.Close()
+
+            If returnValue.Value = 100 Then
+                lblUyari.Visible = True
+                lblUyari.Text = "Notlar Onaylandı."
+                'divNotOnay1.Visible = False
+                'divNotOnay2.Visible = False
+                notlarGetir()
+                Session("FINAL_ONAY") = True
+            Else
+                lblUyari.Visible = True
+                lblUyari.Text = "Hata oluştu. Notlar Onaylanamadı!"
+                'divNotOnay1.Visible = False
+                'divNotOnay2.Visible = False
+                notlarGetir()
+                Session("FINAL_ONAY") = False
+            End If
+
+        Catch ex As SqlException
+            lblUyari.Visible = True
+            lblUyari.Text = "Onay verme işlemi sırasında bir hata oluştu."
+        Catch ex As Exception
+            lblUyari.Visible = True
+            lblUyari.Text = "Bir hata oluştu.Bilgi İşlem' e başvurunuz."
+            'lblUyari.Text = ex.Message
+        Finally
+            If conn.State = Data.ConnectionState.Open Then conn.Close()
+            'Session("ONAYVAR") = False
+        End Try
+    End Sub
+
+    Protected Sub rdbEksikNot_CheckedChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles rdbEksikNot.CheckedChanged
+        Session("EKSIK_NOT") = True
+        Dim dt As New DataTable
+        dt = Session("DT_NOTLAR")
+        gridNotliste.DataSource = dt
+        gridNotliste.DataBind()
+    End Sub
+End Class

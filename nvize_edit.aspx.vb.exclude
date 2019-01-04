@@ -1,0 +1,204 @@
+﻿Imports System.Data
+Imports System.Data.SqlClient
+Imports System.Configuration
+
+Partial Class nvize_edit
+    Inherits System.Web.UI.Page
+
+    Private conn As New SqlConnection(ConfigurationManager.AppSettings("conn1"))
+
+    Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        'If Session("Access") = "False" Or Session("Access") Is Nothing Then
+        '    Response.Redirect("Giris.aspx", True)
+        '    Exit Sub
+        'End If
+        Response.Redirect("Default.aspx")
+        Exit Sub
+
+        lblUyari.Visible = False
+        lblUyari.Text = ""
+        'lblDerskodu.Text = "Ders : " & DirectCast(Session("DERS_AD"), String)
+
+        If Page.IsPostBack = False Then
+            notlarGetir()
+        End If
+
+        imgb_notKaydet.Attributes.Add("onclick", "alert('Notlar yayınlanmasına onay vermediğiniz sürece öğrenciler tarafından görüntülenemeyecektir!');")
+    End Sub
+
+    Private Sub notlarGetir()
+        Try
+            Dim command As New SqlCommand("stp_YNS_VIZE_NOTLAR_GETIR", conn)
+            command.CommandType = Data.CommandType.StoredProcedure
+
+            With command.Parameters
+                .AddWithValue("ATANAN_ID", 1)
+                .AddWithValue("YIL", 2009)
+                .AddWithValue("DONEM", 2)
+            End With
+
+            Dim Adapter As SqlDataAdapter = New SqlDataAdapter(command)
+
+            Dim dt As New DataTable
+
+            If conn.State <> Data.ConnectionState.Open Then conn.Open()
+            Adapter.Fill(dt)
+            If conn.State = Data.ConnectionState.Open Then conn.Close()
+
+            Session("DT_NOTLAR") = dt
+            grid_notliste.DataSource = dt
+            grid_notliste.DataBind()
+
+            If Not dt.Rows.Count > 0 Then divDersler.Visible = False Else divDersler.Visible = True
+        Catch ex As Exception
+            lblUyari.Visible = True
+            lblUyari.Text = "Bir hata oluştu.Bilgi İşlem' e başvurunuz."
+            'lblUyari.Text = ex.Message
+        Finally
+            If conn.State = Data.ConnectionState.Open Then conn.Close()
+        End Try
+    End Sub
+
+    Private Sub notToparla(ByVal kayit As Boolean)
+        Dim rowCount As Integer = grid_notliste.Rows.Count
+
+        If rowCount > 0 Then
+            Try
+                Dim dt As New DataTable
+                dt = CType(Session("DT_NOTLAR"), DataTable)
+
+                Dim idler As New StringBuilder
+                Dim vizeler As New StringBuilder
+                Dim devamlar As New StringBuilder
+                Dim vizedurumlar As New StringBuilder
+                Dim bn_degerlist As New StringBuilder
+
+                Dim id As Long = 0
+                Dim vize As Integer = 0
+                Dim vize_not As String = ""
+                Dim devam As Boolean = False
+                Dim vizedurum As Boolean = False
+                Dim bn_deger As Integer = 0
+
+                For i As Integer = 0 To rowCount - 1
+                    If idler.Length > 0 Then
+                        idler.Append(",")
+                        vizeler.Append(",")
+                        devamlar.Append(",")
+                        vizedurumlar.Append(",")
+                        bn_degerlist.Append(",")
+                    End If
+
+
+                    id = DirectCast(grid_notliste.DataKeys(i)("ID"), Long)
+                    bn_deger = CType(grid_notliste.DataKeys(i)("BN_DEGERLENDIR"), Integer)
+
+                    vize_not = DirectCast(grid_notliste.Rows(i).FindControl("txtAraSinav"), TextBox).Text.Trim
+                    If vize_not = String.Empty Then
+                        vize = 0
+                    Else
+                        vize = CType(vize_not, Integer)
+                    End If
+
+
+                    devam = DirectCast(grid_notliste.Rows(i).FindControl("ddlDevam"), DropDownList).SelectedValue
+                    vizedurum = DirectCast(grid_notliste.Rows(i).FindControl("ddlAraSinav"), DropDownList).SelectedValue
+
+                    If kayit = True Then
+                        idler.Append(id)
+                        vizeler.Append(vize)
+                        devamlar.Append(devam)
+                        vizedurumlar.Append(vizedurum)
+                        bn_degerlist.Append(bn_deger)
+                    End If
+
+                    dt.Rows(i)("VIZE_ORT") = vize
+                    dt.Rows(i)("DEVAM_DURUM") = devam
+                    dt.Rows(i)("VIZE_DURUM") = vizedurum
+                Next
+
+                Session("DT_NOTLAR") = dt
+                grid_notliste.DataSource = dt
+                grid_notliste.DataBind()
+
+                If kayit = True Then
+                    notlarKaydet(idler.ToString, devamlar.ToString, vizeler.ToString, vizedurumlar.ToString, bn_degerlist.ToString)
+                End If
+
+            Catch ex As InvalidCastException
+                lblUyari.Visible = True
+                lblUyari.Text = "Not alanlarına sadece rakam girmelisiniz."
+            Catch ex As Exception
+                lblUyari.Visible = True
+                lblUyari.Text = "Bir hata oluştu.Bilgi İşlem' e başvurunuz."
+                'lblUyari.Text = ex.Message
+            End Try
+        End If
+    End Sub
+
+    Private Sub notlarKaydet(ByVal idler As String, ByVal devamlar As String, ByVal vizeler As String, ByVal vizedurumlar As String, ByVal bn_degerlist As String)
+        Try
+            Dim command As New SqlCommand("stp_YNS_VIZE_NOTLAR_GIR", conn)
+            command.CommandType = Data.CommandType.StoredProcedure
+
+            With command.Parameters
+                .AddWithValue("IDLER", idler)
+                .AddWithValue("VIZELER", vizeler)
+                .AddWithValue("DEVAMLAR", devamlar)
+                .AddWithValue("VIZEDURUMLAR", vizedurumlar)
+                .AddWithValue("BN_DEGERLIST", bn_degerlist)
+            End With
+
+            Dim returnValue As SqlParameter
+            returnValue = New SqlParameter("RETURNVALUE", Data.SqlDbType.Int)
+            returnValue.Direction = Data.ParameterDirection.ReturnValue
+            command.Parameters.Add(returnValue)
+
+
+            If conn.State <> Data.ConnectionState.Open Then conn.Open()
+            command.ExecuteNonQuery()
+            If conn.State = Data.ConnectionState.Open Then conn.Close()
+
+
+            If returnValue.Value = 100 Then
+                notlarGetir()
+                lblUyari.Visible = True
+                lblUyari.Text = "Notlar başarıyla kaydedildi."
+            End If
+
+        Catch ex As SqlException
+            lblUyari.Visible = True
+            lblUyari.Text = "Notlar kaydedilirken bir hata oluştu."
+        Catch ex As Exception
+            lblUyari.Visible = True
+            lblUyari.Text = "Bir hata oluştu.Bilgi İşlem' e başvurunuz."
+            'lblUyari.Text = ex.Message
+        Finally
+            If conn.State = Data.ConnectionState.Open Then conn.Close()
+        End Try
+    End Sub
+
+    Protected Sub imgb_notKaydet_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles imgb_notKaydet.Click
+        notToparla(True)
+    End Sub
+
+
+    Protected Sub imgb_Exit_Click(ByVal sender As Object, ByVal e As System.Web.UI.ImageClickEventArgs) Handles imgb_Exit.Click
+        Response.Redirect("Logout.aspx", True)
+    End Sub
+
+    Protected Sub imgb_Home_Click(ByVal sender As Object, ByVal e As System.Web.UI.ImageClickEventArgs) Handles imgb_Home.Click
+        Response.Redirect("Dersler.aspx", True)
+    End Sub
+
+    Protected Sub imgb_VizeEkle_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles imgb_vizeEkle.Click
+        'vizeEkle()
+    End Sub
+End Class
+
+
+
+'select count(ATANANSICIL) as ata, KATID, BOLUM from YNS_ATANAN group by KATID,BOLUM order by ata desc
+'select * from YNS_ATANAN where KATID=10378
+'select * from kat2010b where RECID=10378
+'select * from d2010b where birim='0611' and derskod='MAD412'

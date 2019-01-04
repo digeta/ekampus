@@ -1,0 +1,92 @@
+Imports Microsoft.VisualBasic
+Imports System.Data
+Imports System.Data.SqlClient
+
+Public Class kyDataSource
+    Public _dataSet As DataSet
+    Public _table As DataTable
+    Public _adapter As SqlDataAdapter
+    Private _comm As SqlCommand
+    Private _conn As SqlConnection
+    Private _sqlSelect, _sqlInsert, _sqlDelete, _sqlUpdate, _sqlstr As String
+
+    Public Property ConnectionString() As String
+        Get
+            Return _conn.ConnectionString
+        End Get
+        Set(ByVal value As String)
+            _conn.ConnectionString = value
+        End Set
+    End Property
+
+    Public Property SelectCommand() As String
+        Get
+            Return _sqlSelect
+        End Get
+        Set(ByVal value As String)
+            _sqlSelect = value
+        End Set
+    End Property
+
+    Public Property InsertCommand() As String
+        Get
+            Return _sqlInsert
+        End Get
+        Set(ByVal value As String)
+            _sqlInsert = value
+        End Set
+    End Property
+
+    Public Property DeleteCommand() As String
+        Get
+            Return _sqlDelete
+        End Get
+        Set(ByVal value As String)
+            _sqlDelete = value
+        End Set
+    End Property
+
+    Public Property UpdateCommand() As String
+        Get
+            Return _sqlUpdate
+        End Get
+        Set(ByVal value As String)
+            _sqlUpdate = value
+        End Set
+    End Property
+
+    Public Sub doSelect()
+
+    End Sub
+
+    Public Sub doInsert()
+
+    End Sub
+
+    Public Sub doDelete()
+
+    End Sub
+
+    Public Sub doUpdate()
+
+    End Sub
+
+    Public Sub _dSource()
+        Try
+            _conn = New SqlConnection
+            _conn.ConnectionString = "Data Source=10.1.16.41;Initial Catalog=proje1;User Id=ezkuderskul;Password=alskdjfhg;"
+            _conn.Open()
+            _dataSet = New DataSet
+            _table = New DataTable("OGR_MESAJ")
+            _dataSet.Tables.Add(_table)
+            _adapter = New SqlDataAdapter
+            '_sqlstr = "SELECT ID, GOND_AD, MSJ_KONU, DURUM, GOND_TARIH FROM(OGR_MESAJ)WHERE (ALICI_ID = @ALICI_ID) AND (DURUM = 0) OR (ALICI_ID = @ALICI_ID) AND (DURUM = 1) OR (ALICI_ID = '001') AND (DURUM = 3) OR (ALICI_ID = @FAKID) AND (DURUM = 4) OR (ALICI_ID = @BOLUMID) AND (DURUM = 5) OR (ALICI_ID = (SELECT     KARNE2.dbo.karneler.derskod FROM KARNE2.dbo.karneler INNER JOIN OGR_MESAJ AS OGR_MESAJ_1 ON KARNE2.dbo.karneler.derskod COLLATE Turkish_CS_AI = OGR_MESAJ_1.ALICI_ID WHERE (KARNE2.dbo.karneler.fakno = @fakno) AND (KARNE2.dbo.karneler.birim = @birim) AND (KARNE2.dbo.karneler.alyil = @alyil) AND (KARNE2.dbo.karneler.donem = @donem)) COLLATE Turkish_CS_AI) AND (DURUM = 6) "
+            _sqlstr = "SELECT ID, GOND_AD, MSJ_KONU, DURUM, GOND_TARIH FROM OGR_MESAJ"
+            _comm = New SqlCommand(_sqlstr, _conn)
+            _adapter.SelectCommand = _comm
+            '_comm.ExecuteReader()
+        Catch _sqlExcp As SqlException
+        End Try
+
+    End Sub
+End Class

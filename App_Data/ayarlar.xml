@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ayar>
+  <bakim durum="false"><font color="#FF0000">Sistem şuan bakımdadır.</font>Büt girişleri için sistemde hazırlık yapılmaktadır.</bakim>
+  <gelecekBakim durum="false">01.01.2010 tarihinde 1 saat süreyle sistemde bakım yapılacaktır.Bu süre içerisinde sisteme giriş yapılamayacaktır.</gelecekBakim>
+  <duyuru_00 gizli="true">
+    <p>
+      <font color="#FF0000">Not girişleri kapanmıştır.</font>
+      <span style="color: #FF0000; text-decoration: underline;">
+      Döküm ve not yayınlama işlemleri için giriş yapabilirsiniz.
+</span>
+     <br />
+	Soru ve sorunlarınız için bim@karaelmas.edu.tr adresine eposta atınız.	
+      <br />
+      <br />
+    </p>
+  </duyuru_00>
+  <duyuru_0 gizli="false">
+    <p>
+      <span style="color: #330000">
+        Giriş yapamıyorsanız, Bilgi İşlem ile iletişime geçiniz.
+      </span>
+      <br />
+      <br />
+    </p>
+  </duyuru_0>
+  <duyuru_1 gizli="false">
+    <p>
+      <span style="color: #330000">Öğrenci olarak giriş yapıyorsanız, kullanıcı adınız fakülte 
+      numaranızdır ve parolanız ise ders alma işlemleri sırasında kullandığınız paroladır.
+      (T.C. kimlik ilk 6 hanesi)</span>
+      <br />
+      <br />
+    </p>
+  </duyuru_1>
+  <duyuru_2 gizli="false">
+    <p>
+      <span style="color: #330000">Personel olarak giriş yapıyorsanız, kullanıcı adınız sicil
+      numaranızdır ve parolanız ise T.C. Kimlik numaranızın tamamıdır.</span>
+      <br />
+      <br />
+    </p>
+  </duyuru_2>
+  <duyuru_3 gizli="false">
+    <p>
+      <span style="color: #330000">Bu sitede yayınlanan ders materyallerinin tüm sorumluluğu,
+      materyalleri yayınlayan öğretim elemanlarına aittir.
+      Ders materyallerinin izinsiz kopyalanması,
+      dağıtılması, <strong>5846 Sayılı Fikir ve Sanat Eserleri Kanunu' </strong>na göre suçtur.</span>
+      <br />
+      <br />
+    </p>
+  </duyuru_3>
+  <duyuru_4 gizli="true">
+    <p>
+      <span style="color: #330000">
+        Giriş yapamıyorsanız, Bilgi İşlem ile iletişime geçiniz.
+      </span>
+      <br />
+      <br />
+    </p>
+  </duyuru_4>
+  <duyuru_5 gizli="true">
+    <p>
+      <span>
+        Oturum süresi azami <font color="#FF0000">30 Dakika</font>&#39; dır.Bu süre içerisinde
+        notları kaydetmelisiniz, bu süre bitiminden sonra notları kaydetmek istediğinizde
+        notlar kaydolmayacak ve sistem tarafından ilk giriş sayfasına yönlendirileceksiniz.
+      </span>
+      <br />
+      <br />
+    </p>
+  </duyuru_5> 
+</ayar>

@@ -1,0 +1,51 @@
+<%@ Page Language="VB" MasterPageFile="~/MasterPage.master" AutoEventWireup="false"
+    CodeFile="cihazlist.aspx.vb" Inherits="cihazlist" Title="Untitled Page" %>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="o_cph_main" runat="Server">
+    <div id="o_div_cihaz" style="margin-left: 200px; height: auto">
+        <asp:Label ID="o_lbl_ipbilgi" runat="server" Font-Bold="True" ForeColor="DarkOrange" Font-Names="Verdana"
+            Font-Size="Small"></asp:Label><br />
+        <div id="o_div_warnings" style="text-align: center">
+            <asp:Label ID="lblUyari" runat="server" Font-Bold="True" ForeColor="Red" Visible="False"
+                Font-Names="Verdana" Font-Size="Small"></asp:Label><br />
+        </div>
+        <div id="o_div_grid" style="margin-bottom: 5px">
+            <asp:GridView ID="o_grid_pcs" runat="server" AutoGenerateColumns="False" CellPadding="4"
+                DataKeyNames="ID,AKTIF,BIM_ONAY" ForeColor="#333333" GridLines="None">
+                <FooterStyle BackColor="#5D7B9D" Font-Bold="True" ForeColor="White" />
+                <Columns>
+                    <asp:TemplateField>
+                        <ItemTemplate>
+                            <asp:Image ID="img_pctur" runat="server" />
+                        </ItemTemplate>
+                    </asp:TemplateField>
+                    <asp:BoundField DataField="PCTUR" HeaderText="Bilgisayar t&#252;r&#252;" SortExpression="PCTUR" />
+                    <asp:BoundField DataField="IP" HeaderText="IP adresi" SortExpression="IP" />
+                    <asp:BoundField DataField="AD" HeaderText="Ad" SortExpression="AD" />
+                    <asp:BoundField DataField="SOYAD" HeaderText="Soyad" SortExpression="SOYAD" />
+                    <asp:BoundField DataField="LAB" HeaderText="Laboratuar" SortExpression="LAB" />
+                    <asp:BoundField DataField="PCNO" HeaderText="Bilg. No." SortExpression="PCNO" />
+                    <asp:TemplateField HeaderText="Aktif">
+                        <ItemTemplate>
+                            <asp:ImageButton ID="img_aktif" runat="server" Enabled="False" OnClick="img_aktif_Click" />
+                        </ItemTemplate>
+                    </asp:TemplateField>
+                    <asp:TemplateField HeaderText="Onay">
+                        <ItemTemplate>
+                            <asp:Image ID="img_onay" runat="server" />
+                        </ItemTemplate>
+                    </asp:TemplateField>
+                </Columns>
+                <RowStyle BackColor="#F7F6F3" ForeColor="#333333" />
+                <EditRowStyle BackColor="#999999" />
+                <SelectedRowStyle BackColor="#E2DED6" Font-Bold="True" ForeColor="#333333" />
+                <PagerStyle BackColor="#284775" ForeColor="White" HorizontalAlign="Center" />
+                <HeaderStyle BackColor="#5D7B9D" Font-Bold="True" ForeColor="White" />
+                <AlternatingRowStyle BackColor="White" ForeColor="#284775" />
+            </asp:GridView>
+        </div>
+    </div>
+    <div style="clear: both; height: 0;">
+    </div>
+</asp:Content>
+

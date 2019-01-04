@@ -1,0 +1,121 @@
+<%@ Page Language="VB" AutoEventWireup="false" CodeFile="nvize_edit.aspx.vb" Inherits="nvize_edit"
+    MasterPageFile="~/MasterPage.master" %>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="o_cph_lefttop" runat="Server">
+</asp:Content>
+<asp:Content ID="Content3" ContentPlaceHolderID="o_cph_main" runat="Server">
+    <div id="divNotsistem" style="margin: 0 auto; width: 990px;">
+<div class="islemler">
+                    <fieldset class="islemlerFieldset">
+                        <legend>Ýþlemler</legend>
+                        <div style="padding: 5px; margin: 0 auto;">
+                            <div style="height: 30px; padding-bottom: 2px;">                                
+                                    <div style="float: left; padding-left: 2px;">
+                                        <asp:ImageButton ID="imgb_notKaydet" runat="server" ImageUrl="~/images/notKaydet.png" />
+                                    </div>
+                                    <div style="float: left; padding-left: 2px;">
+                                        <asp:ImageButton ID="imgb_vizeEkle" runat="server" ImageUrl="~/images/notVizeEkle.png" />
+                                    </div>
+                                    <div style="float: left; padding-left: 2px;">
+                                        <asp:ImageButton ID="imgb_notOnay" runat="server" ImageUrl="~/images/notOnayla.png" />
+                                    </div>                                
+                            </div>
+                            <div style="height: 58px; padding-bottom: 2px;">
+                                <div style="height: 30px;">
+                                    <div style="float: left; width: 200px;">
+                                        <asp:Label ID="lblSinifOrtalama" runat="server"></asp:Label>
+                                    </div>
+                                    <div style="float: left; width: 200px;">
+                                        <asp:Label ID="lblStdSapma" runat="server"></asp:Label>
+                                    </div>
+                                </div>
+                                <div style="height: 30px;">
+                                    <div style="float: left; width: 200px;">
+                                        <asp:Label ID="lblSnfTop" runat="server"></asp:Label>
+                                    </div>
+                                    <div style="float: left; width: 200px;">
+                                        <asp:Label ID="lblBnoTop" runat="server"></asp:Label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="height: 24px; text-align: center; padding-top: 3px; padding-bottom: 3px;">
+                                <asp:Label ID="lblUyari" runat="server" Font-Bold="True" ForeColor="#C00000" Visible="False"></asp:Label><br />
+                            </div>
+                            <div style="text-align: center;">
+                                    <div style="padding-bottom: 5px; visibility: hidden;">
+                                        <span>Önce <font color="red">Baðýl deð. hesapla</font> butonu ile baðýl deðerlendirme hesaplatmalýsýnýz.Bu iþlem
+                                        bittikten sonra notlarý gözden geçirip uygun olduðuna karar verdiðinizde <font color="red">Notlarý Kaydet</font>
+                                        butonu ile kaydetme iþlemini yapmalýsýnýz</span>
+                                    </div>
+                                    <div style="padding-bottom: 5px;">
+                                        <span><font color="red">Sýnýf not listesi</font> bölümünde bulunan <font color="red">Yayýnla</font> butonu ile
+                                        notlarýn yayýnlanmasýna izin vermediðiniz sürece, notlar öðrenciler tarafýndan görüntülenemeyecektir.
+                                        </span>
+                                    </div>                                    
+                                    <div style="padding-bottom: 5px;">
+                                        <span style="color: #FFFFFF; text-decoration: underline;"><a href="SnfListe.aspx">Sýnýf not listesi dökümünü görebilmek için týklayýnýz.</a></span>
+                                    </div>                                    
+                            </div>
+                            <div style="height: 30px; margin: 0 auto;">
+                                <div style="float: left; padding-top: 6px;">
+                                    <asp:Label ID="lblDerskodu" runat="server" ForeColor="#FF9900"></asp:Label>
+                                </div>
+                                <div style="float: right; padding-top: 3px;">
+                                    <asp:ImageButton ID="imgb_Exit" runat="server" ImageUrl="~/images/exit.png" /></div>
+                                <div style="float: right; padding-right: 5px;">
+                                    <asp:ImageButton ID="imgb_Home" runat="server" ImageUrl="~/images/anasayfa.png"
+                                        Height="30px" /></div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>        
+        <div id="updateProgressDiv" style="display: none; height: 90px; width: 630px; margin: 0 auto;
+            margin-top: 10px;">
+            <div style="width: 250px; height: 20px; margin: 0 auto; text-align: center; font-family: Verdana;
+                font-size: 15px; font-weight: bold;">
+                Lütfen Bekleyin...</div>
+            <div style="width: 250px; height: 70px; margin: 0 auto; text-align: center;">
+                <img alt="Lütfen Bekleyin..." src='images/ajax-loader.gif' style="border: 0px; margin: 0 auto;" /></div>
+        </div>
+        <div id="divDersler" runat="server" class="notlar" visible="False">
+            <fieldset class="notlarFieldset">
+                <legend>Dersler ve Notlar </legend>
+                <div style="margin: 0 auto;">
+                    <asp:GridView ID="grid_notliste" runat="server" AutoGenerateColumns="False" CellPadding="4"
+                        GridLines="None" DataKeyNames="ID,BN_DEGERLENDIR">
+                        <RowStyle BackColor="#F7F6F3" />
+                        <Columns>
+                            <asp:TemplateField HeaderText="Fakülte No.">
+                                <ItemTemplate>
+                                    <asp:Label ID="lblFakno" runat="server" Text='<%# Bind ("FAKNO") %>'></asp:Label>
+                                </ItemTemplate>
+                                <HeaderStyle Wrap="False" />
+                                <ItemStyle Wrap="False" />
+                            </asp:TemplateField>
+                            <asp:TemplateField HeaderText="Öðrenci">
+                                <ItemTemplate>
+                                    <asp:Label ID="lblOgrenci" runat="server" Text='<%# Bind ("OGRENCI") %>'></asp:Label>
+                                </ItemTemplate>
+                                <HeaderStyle Wrap="False" />
+                                <ItemStyle Wrap="False" />
+                            </asp:TemplateField>
+                            <asp:TemplateField HeaderText="Ara Sýnavlar Düzeltme">
+                                <ItemTemplate>
+                                    <asp:ImageButton ID="imgb_vizeDuzelt" runat="server" ImageUrl="~/images/vizeDuzelt.png" />
+                                </ItemTemplate>
+                                <HeaderStyle Wrap="False" />
+                                <ItemStyle Wrap="False" HorizontalAlign="Center" />
+                            </asp:TemplateField>
+                        </Columns>
+                        <FooterStyle BackColor="#5D7B9D" Font-Bold="True" ForeColor="White" />
+                        <PagerStyle BackColor="#284775" ForeColor="White" HorizontalAlign="Center" />
+                        <SelectedRowStyle BackColor="#E2DED6" Font-Bold="True" ForeColor="#333333" />
+                        <HeaderStyle Font-Bold="True" CssClass="GridHeader" />
+                        <EditRowStyle BackColor="#999999" />
+                        <AlternatingRowStyle BackColor="White" ForeColor="#284775" />
+                    </asp:GridView>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</asp:Content>

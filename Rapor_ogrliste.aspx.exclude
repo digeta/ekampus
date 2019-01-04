@@ -1,0 +1,61 @@
+﻿<%@ Page Title="" Language="VB" MasterPageFile="~/MasterPage.master" AutoEventWireup="false" CodeFile="Rapor_ogrliste.aspx.vb" Inherits="Rapor_ogrliste" %>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="o_cph_lefttop" Runat="Server">
+</asp:Content>
+<asp:Content ID="Content2" ContentPlaceHolderID="o_cph_main" Runat="Server">
+   <div class="div_derslerContainer">
+        <fieldset class="derslerFieldset">
+            <legend style="color: Black;">Sizden ders alan öğrenciler</legend>
+            <div class="div_warning">
+                <div class="div_innerwarn">
+                    <asp:Label ID="lblUyari" runat="server" Font-Bold="True" ForeColor="#990000" EnableViewState="False"></asp:Label>
+                </div>
+            </div>
+            <div class="dersler">
+            <div style="height: 310px; width: 890px; overflow: auto;">
+                <asp:GridView HorizontalAlign="Center" ID="grid_ogrenciler" runat="server" AutoGenerateColumns="False"
+                    CellPadding="4" ForeColor="#333333" GridLines="None" HeaderStyle-CssClass="GridHeader"
+                    DataKeyNames="FAKNO,OGRENCI,BOLUMAD">
+                    <FooterStyle BackColor="#5D7B9D" Font-Bold="True" ForeColor="White" />
+                    <RowStyle BackColor="#F7F6F3" ForeColor="#333333" />
+                    <Columns>
+                        <asp:TemplateField HeaderText="Öğrenci No.">
+                            <ItemTemplate>
+                                <asp:Label ID="lblFakno" runat="server" Text='<%# Bind ("FAKNO") %>'></asp:Label>
+                            </ItemTemplate>
+                            <HeaderStyle Wrap="False" HorizontalAlign="Left" />
+                            <ItemStyle Wrap="False" Width="80px" />
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="Öğrenci">
+                            <ItemTemplate>
+                                <asp:Label ID="lblOgrenci" runat="server" Text='<%# Bind ("OGRENCI") %>'></asp:Label>
+                            </ItemTemplate>
+                            <HeaderStyle Wrap="False" HorizontalAlign="Left" />
+                            <ItemStyle Wrap="true" Width="200px" />
+                        </asp:TemplateField>                        
+                        <asp:TemplateField HeaderText="Döküm">
+                            <ItemTemplate>
+                                <div>
+                                    <div>
+                                        <asp:Button ID="btnDoktur" runat="server" Text="Listele" 
+                                            Width="100px" onclick="btnDoktur_Click"/>
+                                    </div>
+                                </div>                                
+                            </ItemTemplate>
+                            <ItemStyle HorizontalAlign="Center"/>
+                        </asp:TemplateField>
+                    </Columns>
+                    <PagerStyle BackColor="#284775" ForeColor="White" HorizontalAlign="Center" />
+                    <SelectedRowStyle BackColor="#E2DED6" Font-Bold="True" ForeColor="#333333" />
+                    <HeaderStyle BackColor="#5D7B9D" Font-Bold="True" CssClass="GridHeader" />
+                    <EditRowStyle BackColor="#999999" />
+                    <AlternatingRowStyle BackColor="White" ForeColor="#284775" />
+                </asp:GridView>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    <div style="clear: both;">
+    </div>    
+</asp:Content>
+

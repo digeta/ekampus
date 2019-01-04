@@ -1,0 +1,159 @@
+Imports System.Data.SqlClient
+
+Partial Class cihazlist
+    Inherits System.Web.UI.Page
+
+    Private dbConn As New dConn(0)
+    Private conn As New SqlConnection(dbConn.ConnectionString)
+    Private returnValue As SqlParameter
+
+    Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        '##############Kullanýcý giriþ kontrol####################
+        'If Session("kisino") = 0 Then
+        Server.Transfer("Login.aspx")
+        Exit Sub
+        'End If
+        Session("PageIs") = ""
+
+        If Session("cihazislem") = False Then
+            Response.Write("Default.aspx")
+            Exit Sub
+        End If
+        '#########################################################
+
+        lblUyari.Text = ""
+
+        Dim vlan_id() As String = CType(Session("ipno"), String).Split(".")
+        ViewState("vlan") = vlan_id(1)
+
+        If vlan_id(0) <> "10" Then
+            lblUyari.Visible = True
+            lblUyari.Text = "Þuan kullandýðýnýz bilgisayar ZKÜ aðýna dahil deðildir.<br /> Bu kýsýmda iþlem yapamazsýnýz."
+            Exit Sub
+        End If
+
+        If Page.IsPostBack = False Then
+            o_lbl_ipbilgi.Text = "Þuan ki IP numaranýz : " & Session("ipno")
+            pcleri_getir()
+        End If
+    End Sub
+
+    Private Sub pcleri_getir()
+        Try
+            Dim command As New SqlCommand("stp_PC_GETIR", conn)
+            command.CommandType = Data.CommandType.StoredProcedure
+
+            With command.Parameters
+                .AddWithValue("KISI_NO", CType(Session("kisino"), Long))   'Kurumsicil
+            End With
+
+            Dim Adapter As SqlDataAdapter = New SqlDataAdapter(command)
+            Dim dt As New Data.DataTable()
+            If conn.State <> Data.ConnectionState.Open Then conn.Open()
+            Adapter.Fill(dt)
+            If conn.State = Data.ConnectionState.Open Then conn.Close()
+
+            o_grid_pcs.DataSource = dt
+            o_grid_pcs.DataBind()
+        Catch excp As Exception
+            lblUyari.Visible = True
+            lblUyari.Text = "Ýþlem sýrasýnda hata oluþtu."
+        Finally
+            If conn.State = Data.ConnectionState.Open Then conn.Close()
+        End Try
+    End Sub
+
+#Region "Gridview Databound"
+    Protected Sub o_grid_macs_DataBound(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_grid_pcs.DataBound
+        Dim gridRowCount As Integer = o_grid_pcs.Rows.Count
+        For i As Integer = 0 To gridRowCount - 1
+
+            If o_grid_pcs.Rows(i).Cells(1).Text = 0 Then
+                o_grid_pcs.Rows(i).Cells(1).Text = "Sabit kullanýcý"
+                CType(o_grid_pcs.Rows(i).FindControl("img_pctur"), Image).ImageUrl = "images/img_cihaz/private.gif"
+
+            ElseIf o_grid_pcs.Rows(i).Cells(1).Text = 1 Then
+                o_grid_pcs.Rows(i).Cells(1).Text = "Hareketli kullanýcý"
+                CType(o_grid_pcs.Rows(i).FindControl("img_pctur"), Image).ImageUrl = "images/img_cihaz/mobile.gif"
+
+            ElseIf o_grid_pcs.Rows(i).Cells(1).Text = 2 Then
+                o_grid_pcs.Rows(i).Cells(1).Text = "Ortak kullaným"
+                CType(o_grid_pcs.Rows(i).FindControl("img_pctur"), Image).ImageUrl = "images/img_cihaz/public.gif"
+
+            ElseIf o_grid_pcs.Rows(i).Cells(1).Text = 3 Then
+                o_grid_pcs.Rows(i).Cells(1).Text = "Sunucu"
+                CType(o_grid_pcs.Rows(i).FindControl("img_pctur"), Image).ImageUrl = "images/img_cihaz/server.png"
+                CType(o_grid_pcs.Rows(i).FindControl("img_aktif"), ImageButton).Enabled = True
+
+            ElseIf o_grid_pcs.Rows(i).Cells(1).Text = 4 Then
+                o_grid_pcs.Rows(i).Cells(1).Text = "Misafir"
+                CType(o_grid_pcs.Rows(i).FindControl("img_pctur"), Image).ImageUrl = "images/img_cihaz/quest.gif"
+            End If
+
+            If o_grid_pcs.DataKeys(i)(1) = "False" Then
+                CType(o_grid_pcs.Rows(i).FindControl("img_aktif"), ImageButton).ImageUrl = "images/img_cihaz/red.gif"
+            Else
+                CType(o_grid_pcs.Rows(i).FindControl("img_aktif"), ImageButton).ImageUrl = "images/img_cihaz/onay.gif"
+            End If
+
+            If o_grid_pcs.DataKeys(i)(2) = "False" Then
+                CType(o_grid_pcs.Rows(i).FindControl("img_onay"), Image).ImageUrl = "images/img_cihaz/red.gif"
+            Else
+                CType(o_grid_pcs.Rows(i).FindControl("img_onay"), Image).ImageUrl = "images/img_cihaz/onay.gif"
+            End If
+        Next
+    End Sub
+#End Region
+
+    Protected Sub img_aktif_Click(ByVal sender As Object, ByVal e As System.Web.UI.ImageClickEventArgs)
+        Try
+            Dim imgButton As ImageButton = CType(sender, ImageButton)
+            Dim grow As GridViewRow = CType(imgButton.Parent.Parent, GridViewRow)
+            Dim rowIndex As Integer = grow.RowIndex
+
+            Dim command As New SqlCommand("stp_SUNUCU_DEGISTIR", conn)
+            command.CommandType = Data.CommandType.StoredProcedure
+
+            With command.Parameters
+                .AddWithValue("ID", o_grid_pcs.DataKeys(rowIndex)(0))
+                .AddWithValue("KISI_NO", CType(Session("kisino"), Long))
+            End With
+
+            returnValue = New SqlParameter("RETURNVALUE", Data.SqlDbType.Int)
+            returnValue.Direction = Data.ParameterDirection.ReturnValue
+            command.Parameters.Add(returnValue)
+
+            If conn.State <> Data.ConnectionState.Open Then conn.Open()
+            command.ExecuteNonQuery()
+            If conn.State = Data.ConnectionState.Open Then conn.Close()
+
+            lblUyari.Visible = True
+            If returnValue.Value = 902 Or returnValue.Value = 904 Then
+                lblUyari.Text = "Yeni yaptýðýnýz "" kayýt / kayýt aktif etme / kayýt pasif etme "" iþlemleri arasýnda belli bir süre geçmesi gerekmektedir"
+            ElseIf returnValue.Value = 903 Then
+                lblUyari.Text = "Bu bilgisayarýn kaydýný, ancak ayný bilgisayarý kullanarak pasif hale getirebilirsiniz"
+            ElseIf returnValue.Value = 905 Then
+                lblUyari.Text = "Bu bilgisayarýn kaydýný, ancak ayný bilgisayarý kullanarak aktif hale getirebilirsiniz"
+            ElseIf returnValue.Value = 906 Then
+                lblUyari.Text = "Ayný bilgisayar birden fazla aktif kayýta sahip olamaz, internet eriþimine açmaya çalýþtýðýnýz bilgisayarýn eriþimi zaten açýk"
+            ElseIf returnValue.Value = 111 Then
+                lblUyari.Text = "Seçtiðiniz bilgisayarýn internet eriþimi bir süre sonra kapanacak"
+            ElseIf returnValue.Value = 112 Then
+                lblUyari.Text = "Seçtiðiniz bilgisayarýn internet eriþimi bir süre sonra kapanacak ve üzerinde açýlmýþ oturumlar sonlandýralacak"
+            ElseIf returnValue.Value = 113 Then
+                lblUyari.Text = "Seçtiðiniz sunucunun internet eriþimi bir süre sonra kapanacak"
+            ElseIf returnValue.Value = 114 Then
+                lblUyari.Text = "Seçtiðiniz bilgisayarýn internet eriþimi bir süre sonra açýlacak"
+            ElseIf returnValue.Value = 111 Then
+                lblUyari.Text = "Seçtiðiniz sunucucun internet eriþimi bir süre sonra açýlacak"
+            End If
+        Catch ex As Exception
+            lblUyari.Visible = True
+            lblUyari.Text = "Ýþlem sýrasýnda hata oluþtu. Hata kodu : 400101"
+        Finally
+            If conn.State = Data.ConnectionState.Open Then conn.Close()
+            If returnValue.Value < 200 Then pcleri_getir()
+        End Try
+    End Sub
+End Class
+'101 - 

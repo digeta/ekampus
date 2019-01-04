@@ -1,0 +1,799 @@
+'Durum
+'0=Okunmadý
+'1=Okundu
+'2=Silindi (Görüntüde)
+'3=Genel Mesaj
+'4=Fakülte Mesajý
+'5=Bölüm Mesajý
+'6=Derskod a göre
+'7=Birim Mesajý
+'8=Tüm Birimlere
+Partial Class Messages
+    Inherits System.Web.UI.Page
+
+    Private _conn As New dConn(0)
+    Private _sqlStr, litem_fak, litem_bol, _ip As String
+    Private _donem, _yil, _letter As String
+
+    Private i, _rcount, _ccount As Integer
+    Private lisitem As New ListItem
+
+#Region "Load"
+    Protected Sub Page_Init(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Init
+        Response.Redirect("Default.aspx")
+        Exit Sub
+
+        If Session("term") = "Güz Dönemi" Then
+            _donem = "GUZ"
+            _yil = Mid(Session("term2"), 1, 4)
+        ElseIf Session("term") = "Bahar Dönemi" Then
+            _donem = "BAH"
+            _yil = Mid(Session("term2"), 6, 4)
+        End If
+        _letter = LCase(Mid(_donem, 1, 1))
+        Dim a, b, c, d As String
+        Session("_table") = "KARNE2.dbo." & "d" & _yil & _letter
+        Session("_table@derskod") = "KARNE2.dbo." & "d" & _yil & _letter & ".derskod"
+        Session("_table@fakno") = "KARNE2.dbo." & "d" & _yil & _letter & ".fakno"
+        Session("_table@birim") = "KARNE2.dbo." & "d" & _yil & _letter & ".birim"
+    End Sub
+
+    Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        If Session("kisino") = 0 Then
+            Server.Transfer("Login.aspx")
+        End If
+        Session("PageIs") = ""
+        'Server.Transfer("Default.aspx")
+
+        o_grid_msj.SelectedIndex = -1
+        o_grid_trash.SelectedIndex = -1
+        Try
+            If Session("type") = "Personel" Then
+                _ccount = o_grid_msj.Columns.Count
+                For i = 0 To _ccount - 1
+                    o_grid_msj.Columns(i).HeaderStyle.BackColor = Drawing.ColorTranslator.FromHtml("#5d7b9d") 'baþlýk rengi
+                    o_grid_msj.Columns(i).FooterStyle.BackColor = Drawing.ColorTranslator.FromHtml("#5d7b9d") 'altlýk rengi
+                    o_grid_trash.Columns(i).HeaderStyle.BackColor = Drawing.ColorTranslator.FromHtml("#5d7b9d") 'baþlýk rengi
+                    o_grid_trash.Columns(i).FooterStyle.BackColor = Drawing.ColorTranslator.FromHtml("#5d7b9d") 'altlýk rengi
+                Next
+                o_grid_msj.DataSourceID = "dsPerMsg"
+                o_grid_trash.DataSourceID = "dsPerTrash"
+                o_btn_compose2.Visible = False
+                o_btn_composep2.Visible = False
+            ElseIf Session("type") = "Student" Then
+                'CType(Master.FindControl("dersmenu"), TreeView).Visible = False
+                'o_grid_msj.Rows(0).BackColor = Drawing.Color.Azure 'satýr rengi
+                o_grid_msj.DataSourceID = "dsOgrMsg"
+                'o_grid_msj.DataBind()
+                o_grid_trash.DataSourceID = "dsOgrTrash"
+                o_btn_compose.Visible = False
+                o_btn_composep.Visible = False
+            End If
+        Catch _excp As Exception
+            o_lbl_notice.Text = _excp.Message
+        End Try
+    End Sub
+#End Region
+#Region "Mesaj Genel Gridler ve Butonlar"
+    Sub goster(ByVal pnl As Panel)
+        o_pnl_compose.Visible = False
+        o_pnl_compose2.Visible = False
+        o_pnl_composep.Visible = False
+        o_pnl_composep2.Visible = False
+        o_pnl_read.Visible = False
+        o_pnl_reply.Visible = False
+        If pnl IsNot Nothing Then pnl.Visible = True
+    End Sub
+    Protected Sub o_grid_msj_DataBound(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_grid_msj.DataBound
+        If o_grid_msj.Rows.Count = 0 Then
+            o_lbl_notice.Text = "Gelen kutusunda mesajýnýz yok"
+            o_lbl_notice.ForeColor = Drawing.Color.Red
+        Else
+            o_lbl_notice.Text = "Gelen Mesajlarýnýz"
+            o_lbl_notice.ForeColor = Drawing.Color.RoyalBlue
+            _rcount = o_grid_msj.Rows.Count
+            For i = 0 To _rcount - 1
+                If o_grid_msj.Rows(i).Cells(4).Text = "1" Then
+                    o_grid_msj.Rows(i).Cells(4).Text = "Okundu"
+                ElseIf o_grid_msj.Rows(i).Cells(4).Text = "0" Then
+                    o_grid_msj.Rows(i).Cells(4).Text = "Okunmadý"
+                ElseIf o_grid_msj.Rows(i).Cells(4).Text = "3" Then
+                    o_grid_msj.Rows(i).Cells(4).Text = "Genel Mesaj"
+                    o_grid_msj.Rows(i).Cells(6).Enabled = False
+                ElseIf o_grid_msj.Rows(i).Cells(4).Text = "4" Then
+                    o_grid_msj.Rows(i).Cells(4).Text = "Fakülte Mesajý"
+                    o_grid_msj.Rows(i).Cells(6).Enabled = False
+                ElseIf o_grid_msj.Rows(i).Cells(4).Text = "5" Then
+                    o_grid_msj.Rows(i).Cells(4).Text = "Bölüm Mesajý"
+                    o_grid_msj.Rows(i).Cells(6).Enabled = False
+                ElseIf o_grid_msj.Rows(i).Cells(4).Text = "6" Then
+                    o_grid_msj.Rows(i).Cells(4).Text = "Ders Mesajý(" + o_grid_msj.DataKeys(i).Item("ALICI_ID").ToString + ")"
+                    o_grid_msj.Rows(i).Cells(6).Enabled = False
+                ElseIf o_grid_msj.Rows(i).Cells(4).Text = "7" Then
+                    o_grid_msj.Rows(i).Cells(4).Text = "Birim Mesajý"
+                    o_grid_msj.Rows(i).Cells(6).Enabled = False
+                ElseIf o_grid_msj.Rows(i).Cells(4).Text = "8" Then
+                    o_grid_msj.Rows(i).Cells(4).Text = "Tüm Birimler"
+                    o_grid_msj.Rows(i).Cells(6).Enabled = False
+                End If
+            Next
+        End If
+    End Sub
+
+    Protected Sub o_grid_trash_DataBound(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_grid_trash.DataBound
+        If o_grid_trash.Rows.Count = 0 Then
+            o_lbl_notice.Text = "Çöp kutusunda mesajýnýz yok"
+            o_lbl_notice.ForeColor = Drawing.Color.Red
+        Else
+            o_lbl_notice.Text = "Silinen Mesajlarýnýz"
+            o_lbl_notice.ForeColor = Drawing.Color.RoyalBlue
+            _rcount = o_grid_trash.Rows.Count
+            For i = 0 To _rcount - 1
+                o_grid_trash.Rows(i).Cells(4).Text = "Okundu"
+            Next
+        End If
+    End Sub
+
+    Protected Sub o_grid_msj_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_grid_msj.SelectedIndexChanged
+        With _conn
+            Try
+                goster(o_pnl_read)
+                If Session("type") = "Personel" Then
+                    _sqlStr = "SELECT GOND_ID,GOND_AD,RTRIM(LTRIM(MSJ_KONU)) AS KONU,MSJ_ICERIK,DURUM FROM PER_MESAJ WHERE ID=" + CType(o_grid_msj.SelectedValue, String)
+                ElseIf Session("type") = "Student" Then
+                    _sqlStr = "SELECT GOND_ID,GOND_AD,RTRIM(LTRIM(MSJ_KONU)) AS KONU,MSJ_ICERIK,DURUM FROM OGR_MESAJ WHERE ID=" + CType(o_grid_msj.SelectedValue, String)
+                End If
+                .SelectQuery(_sqlStr)
+                ._sqlReader.Read()
+                Session("alici_id") = ._sqlReader("GOND_ID")
+                Session("alici_ad") = ._sqlReader("GOND_AD")
+                Session("msgstate") = ._sqlReader("DURUM")
+                o_txt_readsub.Text = ._sqlReader("KONU")
+                o_txt_read.Text = ._sqlReader("MSJ_ICERIK")
+            Catch _sqlExcp As Data.SqlClient.SqlException
+            Finally
+                ._sqlReader.Close()
+                Try
+                    If o_grid_msj.Rows(o_grid_msj.SelectedIndex).Cells(4).Text = "0" Then
+                        If Session("type") = "Personel" Then
+                            .InsertQuery("UPDATE PER_MESAJ SET DURUM=1 WHERE ID=" + CType(o_grid_msj.SelectedValue, String))
+                        ElseIf Session("type") = "Student" Then
+                            .InsertQuery("UPDATE OGR_MESAJ SET DURUM=1 WHERE ID=" + CType(o_grid_msj.SelectedValue, String))
+                        End If
+                    End If
+                Catch _sqlExcp As Data.SqlClient.SqlException
+                Finally
+                    .Close()
+                End Try
+            End Try
+        End With
+    End Sub
+
+    Protected Sub o_grid_trash_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_grid_trash.SelectedIndexChanged
+        With _conn
+            Try
+                goster(o_pnl_read)
+                If Session("type") = "Personel" Then
+                    _sqlStr = "SELECT GOND_ID,GOND_AD,RTRIM(LTRIM(MSJ_KONU)) AS KONU,MSJ_ICERIK FROM PER_MESAJ WHERE ID=" + CType(o_grid_trash.SelectedValue, String)
+                ElseIf Session("type") = "Student" Then
+                    _sqlStr = "SELECT GOND_ID,GOND_AD,RTRIM(LTRIM(MSJ_KONU)) AS KONU,MSJ_ICERIK FROM OGR_MESAJ WHERE ID=" + CType(o_grid_trash.SelectedValue, String)
+                End If
+                .SelectQuery(_sqlStr)
+                ._sqlReader.Read()
+                Session("alici_id") = ._sqlReader("GOND_ID")
+                Session("alici_ad") = ._sqlReader("GOND_AD")
+                o_txt_readsub.Text = ._sqlReader("KONU")
+                o_txt_read.Text = ._sqlReader("MSJ_ICERIK")
+            Catch _sqlExcp As Data.SqlClient.SqlException
+            Finally
+                ._sqlReader.Close()
+            End Try
+        End With
+    End Sub
+
+    Protected Sub o_btn_compose_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_btn_compose.Click
+        goster(o_pnl_compose)
+        o_btn_trash.Enabled = True
+        o_btn_inbox.Enabled = False
+        o_grid_msj.Visible = True
+        o_grid_trash.Visible = False
+        If o_dlist_fak.Items.Count > 0 Then
+            o_dlist_fak.ClearSelection()
+            o_dlist_fak.Items.FindByValue(-1).Selected = True
+            o_dlist_fakx.ClearSelection()
+            o_dlist_fakx.Items.FindByValue(-1).Selected = True
+            o_dlist_fakx.Enabled = False
+        End If
+        If o_dlist_bolum.Items.Count > 0 Then
+            o_dlist_bolum.ClearSelection()
+            o_dlist_bolum.Items.FindByValue(-1).Selected = True
+            o_dlist_bolum.Enabled = False
+            o_dlist_bolumx.ClearSelection()
+            o_dlist_bolumx.Items.FindByValue(-1).Selected = True
+            o_dlist_bolumx.Enabled = False
+        End If
+        If o_dlist_oalici.Items.Count > 0 Then
+            o_dlist_oalici.ClearSelection()
+            o_dlist_oalici.Items.FindByValue(-1).Selected = True
+            o_dlist_oalici.Enabled = False
+        End If
+        If o_dlist_dkod.Items.Count > 0 Then
+            o_dlist_dkod.ClearSelection()
+            o_dlist_dkod.Items.FindByValue(-1).Selected = True
+            o_dlist_dkod.Enabled = False
+        End If
+    End Sub
+
+    Protected Sub o_btn_compose2_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_btn_compose2.Click
+        goster(o_pnl_compose2)
+        o_btn_trash.Enabled = True
+        o_btn_inbox.Enabled = False
+        o_grid_msj.Visible = True
+        o_grid_trash.Visible = False
+        If o_dlist_fak2.Items.Count > 0 Then
+            o_dlist_fak2.ClearSelection()
+            o_dlist_fak2.Items.FindByValue(-1).Selected = True
+        End If
+        If o_dlist_bolum2.Items.Count > 0 Then
+            o_dlist_bolum2.ClearSelection()
+            o_dlist_bolum2.Items.FindByValue(-1).Selected = True
+            o_dlist_bolum2.Enabled = False
+        End If
+        If o_dlist_oalici2.Items.Count > 0 Then
+            o_dlist_oalici2.ClearSelection()
+            o_dlist_oalici2.Items.FindByValue(-1).Selected = True
+            o_dlist_oalici2.Enabled = False
+        End If
+    End Sub
+
+    Protected Sub o_btn_composep_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_btn_composep.Click
+        goster(o_pnl_composep)
+        o_btn_trash.Enabled = True
+        o_btn_inbox.Enabled = False
+        o_grid_msj.Visible = True
+        o_grid_trash.Visible = False
+        If o_dlist_birim.Items.Count > 0 Then
+            o_dlist_birim.ClearSelection()
+            o_dlist_birim.Items.FindByValue(-1).Selected = True
+            o_dlist_birimx.ClearSelection()
+            o_dlist_birimx.Items.FindByValue(-1).Selected = True
+            o_dlist_birimx.Enabled = False
+        End If
+        If o_dlist_palici.Items.Count > 0 Then
+            o_dlist_palici.ClearSelection()
+            o_dlist_palici.Items.FindByValue(-1).Selected = True
+            o_dlist_palici.Enabled = False
+        End If
+    End Sub
+
+    Protected Sub o_btn_composep2_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_btn_composep2.Click
+        goster(o_pnl_composep2)
+        o_btn_trash.Enabled = True
+        o_btn_inbox.Enabled = False
+        o_grid_msj.Visible = True
+        o_grid_trash.Visible = False
+        If o_dlist_birim2.Items.Count > 0 Then
+            o_dlist_birim2.ClearSelection()
+            o_dlist_birim2.Items.FindByValue(-1).Selected = True
+        End If
+        If o_dlist_palici2.Items.Count > 0 Then
+            o_dlist_palici2.ClearSelection()
+            o_dlist_palici2.Items.FindByValue(-1).Selected = True
+            o_dlist_palici2.Enabled = False
+        End If
+    End Sub
+
+    Protected Sub o_btn_trash_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_btn_trash.Click
+        goster(Nothing)
+        o_btn_trash.Enabled = False
+        o_btn_inbox.Enabled = True
+        o_grid_msj.Visible = False
+        o_grid_trash.Visible = True
+    End Sub
+
+    Protected Sub o_btn_inbox_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_btn_inbox.Click
+        goster(Nothing)
+        o_btn_trash.Enabled = True
+        o_btn_inbox.Enabled = False
+        o_grid_msj.Visible = True
+        o_grid_trash.Visible = False
+    End Sub
+
+    Protected Sub dsOgrMsg_Selecting(ByVal sender As Object, ByVal e As System.Web.UI.WebControls.SqlDataSourceSelectingEventArgs) Handles dsOgrMsg.Selecting
+        If Session("term") = "Güz Dönemi" Then
+            e.Command.Parameters("@donem").Value = "GUZ"
+        ElseIf Session("term") = "Bahar Dönemi" Then
+            e.Command.Parameters("@donem").Value = "BAH"
+        End If
+    End Sub
+#End Region
+#Region "Mesaj Yanýtlama"
+    Protected Sub o_btn_reply_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_btn_reply.Click
+        goster(o_pnl_reply)
+    End Sub
+
+    Protected Sub o_btn_close_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_btn_close.Click
+        goster(Nothing)
+        o_grid_msj.SelectedIndex = -1
+    End Sub
+
+    Protected Sub o_btn_close2_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_btn_close2.Click
+        goster(Nothing)
+        o_grid_msj.SelectedIndex = -1
+    End Sub
+
+    Protected Sub o_btn_reply2_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_btn_reply2.Click
+        If o_txt_replysub.Text <> "" And o_txt_reply.Text <> "" Then
+
+            With _conn
+                Try
+                    _ip = Trim(CType(Context.Request.ServerVariables("REMOTE_ADDR"), String))
+                    If _ip Is Nothing Then _ip = "0.0.0.0"
+                Catch ex As Exception
+                End Try
+                Try
+                    If Session("type") = "Personel" Then
+                        _sqlStr = "INSERT INTO OGR_MESAJ (GOND_ID,GOND_AD,ALICI_ID,ALICI_AD,MSJ_KONU,MSJ_ICERIK,IP) VALUES (" _
+                        + CType(Session("id"), String) + ",'" + CType(Session("adsoyad"), String) + "'," _
+                        + CType(Session("alici_id"), String) + ",'" + CType(Session("alici_ad"), String) + "','" _
+                        + o_txt_replysub.Text + "','" + o_txt_reply.Text + "')"
+                    ElseIf Session("type") = "Student" Then
+                        _sqlStr = "INSERT INTO PER_MESAJ (GOND_ID,GOND_AD,ALICI_ID,ALICI_AD,MSJ_KONU,MSJ_ICERIK,IP) VALUES (" _
+                        + CType(Session("id"), String) + ",'" + CType(Session("adsoyad"), String) + "'," _
+                        + CType(Session("alici_id"), String) + ",'" + CType(Session("alici_ad"), String) + "','" _
+                        + o_txt_replysub.Text + "','" + o_txt_reply.Text + "','" + _ip + "')"
+                    End If
+                    .InsertQuery(_sqlStr)
+                    goster(Nothing)
+                    o_grid_msj.SelectedIndex = -1
+                    o_grid_trash.SelectedIndex = -1
+                Catch _sqlExcp As Data.SqlClient.SqlException
+                    o_lbl_error.Text = _sqlExcp.Message
+                Finally
+                    .Close()
+                End Try
+            End With
+
+        Else
+            o_lbl_notice.Text = "Lütfen gerekli alanlarý doldurunuz"
+        End If
+    End Sub
+#End Region
+
+#Region "Mesaj Gönderme [Personel -> Öðrenciye]"
+    Protected Sub o_btn_send_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_btn_send.Click
+        If o_txt_subject.Text <> "" And o_txt_compose.Text <> "" Then
+         
+            With _conn
+                Try
+                    _ip = Trim(CType(Context.Request.ServerVariables("REMOTE_ADDR"), String))
+                    If _ip Is Nothing Then _ip = "0.0.0.0"
+                Catch ex As Exception
+                End Try
+                Try
+                    If o_dlist_bolum.SelectedValue = -1 And o_dlist_fakx.SelectedValue = 1 Then
+                        _sqlStr = "INSERT INTO OGR_MESAJ (GOND_ID,GOND_AD,ALICI_ID,ALICI_AD,MSJ_KONU,MSJ_ICERIK,DURUM,IP) VALUES (" _
+                        + CType(Session("id"), String) + ",'" + CType(Session("adsoyad"), String) + "','" _
+                        + CType(o_dlist_fak.SelectedValue, String) + "','" + CType(o_dlist_fak.SelectedItem.Text, String) + "','" _
+                        + o_txt_subject.Text + "','" + o_txt_compose.Text + "',4,'" + _ip + "')"
+                    ElseIf o_dlist_bolum.SelectedValue <> -1 And o_dlist_bolumx.SelectedValue = 1 And o_dlist_dkod.SelectedIndex = -1 Then
+                        _sqlStr = "INSERT INTO OGR_MESAJ (GOND_ID,GOND_AD,ALICI_ID,ALICI_AD,MSJ_KONU,MSJ_ICERIK,DURUM,IP) VALUES (" _
+                        + CType(Session("id"), String) + ",'" + CType(Session("adsoyad"), String) + "','" _
+                        + CType(o_dlist_bolum.SelectedValue, String) + "','" + CType(o_dlist_bolum.SelectedItem.Text, String) + "','" _
+                        + o_txt_subject.Text + "','" + o_txt_compose.Text + "',5,'" + _ip + "')"
+                    ElseIf o_dlist_bolum.SelectedValue <> -1 And o_dlist_bolumx.SelectedValue = 1 And o_dlist_dkod.SelectedIndex <> -1 Then
+                        _sqlStr = "INSERT INTO OGR_MESAJ (GOND_ID,GOND_AD,ALICI_ID,ALICI_AD,MSJ_KONU,MSJ_ICERIK,DURUM,IP) VALUES (" _
+                        + CType(Session("id"), String) + ",'" + CType(Session("adsoyad"), String) + "','" _
+                        + CType(o_dlist_dkod.SelectedValue, String) + "','" + CType(o_dlist_dkod.SelectedValue, String) + "','" _
+                        + o_txt_subject.Text + "','" + o_txt_compose.Text + "',6,'" + _ip + "')"
+                    ElseIf o_dlist_oalici.SelectedValue <> -1 Then
+                        _sqlStr = "INSERT INTO OGR_MESAJ (GOND_ID,GOND_AD,ALICI_ID,ALICI_AD,MSJ_KONU,MSJ_ICERIK,IP) VALUES (" _
+                        + CType(Session("id"), String) + ",'" + CType(Session("adsoyad"), String) + "','" _
+                        + CType(o_dlist_oalici.SelectedValue, String) + "','" + CType(o_dlist_oalici.SelectedItem.Text, String) + "','" _
+                        + o_txt_subject.Text + "','" + o_txt_compose.Text + "','" + _ip + "')"
+                    End If
+                    .InsertQuery(_sqlStr)
+                    goster(Nothing)
+                Catch _sqlExcp As Data.SqlClient.SqlException
+                    o_lbl_error.Text = _sqlExcp.Message
+                Finally
+                    .Close()
+                    o_txt_subject.Text = ""
+                    o_txt_compose.Text = ""
+                    o_btn_send.Enabled = False
+                End Try
+            End With
+
+        Else
+            o_lbl_notice.Text = "Lütfen gerekli alanlarý doldurunuz"
+        End If
+    End Sub
+
+    Protected Sub o_btn_sendall_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_btn_sendall.Click
+        If o_txt_subject.Text <> "" And o_txt_compose.Text <> "" Then
+       
+            With _conn
+                Try
+                    _ip = Trim(CType(Context.Request.ServerVariables("REMOTE_ADDR"), String))
+                    If _ip Is Nothing Then _ip = "0.0.0.0"
+                Catch ex As Exception
+                End Try
+                Try
+                    _sqlStr = "INSERT INTO OGR_MESAJ (GOND_ID,GOND_AD,ALICI_ID,ALICI_AD,MSJ_KONU,MSJ_ICERIK,DURUM,IP) VALUES (" _
+                    + CType(Session("id"), String) + ",'" + CType(Session("adsoyad"), String) + "','001','Üniversite','" _
+                    + o_txt_subject.Text + "','" + o_txt_compose.Text + "',3,'" + _ip + "')"
+                    .InsertQuery(_sqlStr)
+                    goster(Nothing)
+                Catch _sqlExcp As Data.SqlClient.SqlException
+                    o_lbl_error.Text = _sqlExcp.Message
+                Finally
+                    .Close()
+                    o_txt_subject.Text = ""
+                    o_txt_compose.Text = ""
+                End Try
+            End With
+
+        Else
+            o_lbl_notice.Text = "Lütfen gerekli alanlarý doldurunuz"
+        End If
+    End Sub
+
+    Protected Sub o_btn_cancel_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_btn_cancel.Click
+        goster(Nothing)
+        o_txt_subject.Text = ""
+        o_txt_compose.Text = ""
+    End Sub
+#End Region
+#Region "Mesaj Gönderme [Personel -> Personel]"
+    Protected Sub o_btn_sendp_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_btn_sendp.Click
+        If o_txt_subjectp.Text <> "" And o_txt_composep.Text <> "" Then
+  
+            With _conn
+                Try
+                    _ip = Trim(CType(Context.Request.ServerVariables("REMOTE_ADDR"), String))
+                    If _ip Is Nothing Then _ip = "0.0.0.0"
+                Catch ex As Exception
+                End Try
+                Try
+                    If o_dlist_birimx.SelectedValue = 1 And o_dlist_palici.SelectedValue = -1 Then
+                        _sqlStr = "INSERT INTO PER_MESAJ (GOND_ID,GOND_AD,ALICI_ID,ALICI_AD,MSJ_KONU,MSJ_ICERIK,DURUM,IP) VALUES (" _
+                        + CType(Session("id"), String) + ",'" + CType(Session("adsoyad"), String) + "','" _
+                        + CType(o_dlist_birim.SelectedValue, String) + "','" + CType(o_dlist_birim.SelectedItem.Text, String) + "','" _
+                        + o_txt_subjectp.Text + "','" + o_txt_composep.Text + "',7,'" + _ip + "')"
+                    ElseIf o_dlist_birimx.SelectedValue = 0 And o_dlist_palici.SelectedValue <> -1 Then
+                        _sqlStr = "INSERT INTO PER_MESAJ (GOND_ID,GOND_AD,ALICI_ID,ALICI_AD,MSJ_KONU,MSJ_ICERIK,IP) VALUES (" _
+                        + CType(Session("id"), String) + ",'" + CType(Session("adsoyad"), String) + "','" _
+                        + CType(o_dlist_palici.SelectedValue, String) + "','" + CType(o_dlist_palici.SelectedItem.Text, String) + "','" _
+                        + o_txt_subjectp.Text + "','" + o_txt_composep.Text + "','" + _ip + "')"
+                    End If
+                    .InsertQuery(_sqlStr)
+                    goster(Nothing)
+                Catch _sqlExcp As Data.SqlClient.SqlException
+                    o_lbl_error.Text = _sqlExcp.Message
+                Finally
+                    .Close()
+                    o_txt_subjectp.Text = ""
+                    o_txt_composep.Text = ""
+                End Try
+            End With
+
+        Else
+        o_lbl_notice.Text = "Lütfen gerekli alanlarý doldurunuz"
+        End If
+    End Sub
+
+    Protected Sub o_btn_sendpall_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_btn_sendpall.Click
+        If o_txt_subjectp.Text <> "" And o_txt_composep.Text <> "" Then
+
+            With _conn
+                Try
+                    _ip = Trim(CType(Context.Request.ServerVariables("REMOTE_ADDR"), String))
+                    If _ip Is Nothing Then _ip = "0.0.0.0"
+                Catch ex As Exception
+                End Try
+                Try
+                    _sqlStr = "INSERT INTO PER_MESAJ (GOND_ID,GOND_AD,ALICI_ID,ALICI_AD,MSJ_KONU,MSJ_ICERIK,DURUM,IP) VALUES (" _
+                    + CType(Session("id"), String) + ",'" + CType(Session("adsoyad"), String) + "','000','Üniversite','" _
+                    + o_txt_subjectp.Text + "','" + o_txt_composep.Text + "',8,'" + _ip + "')"
+                    .InsertQuery(_sqlStr)
+                    goster(Nothing)
+                Catch _sqlExcp As Data.SqlClient.SqlException
+                    o_lbl_error.Text = _sqlExcp.Message
+                Finally
+                    .Close()
+                    o_txt_subjectp.Text = ""
+                    o_txt_composep.Text = ""
+                End Try
+            End With
+
+        Else
+        o_lbl_notice.Text = "Lütfen gerekli alanlarý doldurunuz"
+        End If
+    End Sub
+
+    Protected Sub o_btn_cancelp_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_btn_cancelp.Click
+        goster(Nothing)
+        o_txt_subjectp.Text = ""
+        o_txt_composep.Text = ""
+    End Sub
+#End Region
+
+#Region "Mesaj Gönderme [Öðrenci -> Öðrenci]"
+    Protected Sub o_btn_send2_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_btn_send2.Click
+        If o_txt_subject2.Text <> "" And o_txt_compose2.Text <> "" Then
+            
+            With _conn
+                Try
+                    _ip = Trim(CType(Context.Request.ServerVariables("REMOTE_ADDR"), String))
+                    If _ip Is Nothing Then _ip = "0.0.0.0"
+                Catch ex As Exception
+                End Try
+                Try
+                    If o_dlist_oalici2.SelectedValue <> -1 Then
+                        _sqlStr = "INSERT INTO OGR_MESAJ (GOND_ID,GOND_AD,ALICI_ID,ALICI_AD,MSJ_KONU,MSJ_ICERIK,IP) VALUES (" _
+                        + CType(Session("id"), String) + ",'" + CType(Session("adsoyad"), String) + "','" _
+                        + CType(o_dlist_oalici2.SelectedValue, String) + "','" + CType(o_dlist_oalici2.SelectedItem.Text, String) + "','" _
+                        + o_txt_subject2.Text + "','" + o_txt_compose2.Text + "','" + _ip + "')"
+                    End If
+                    .InsertQuery(_sqlStr)
+                    goster(Nothing)
+                Catch _sqlExcp As Data.SqlClient.SqlException
+                    o_lbl_error.Text = _sqlExcp.Message
+                Finally
+                    .Close()
+                    o_txt_subject2.Text = ""
+                    o_txt_compose2.Text = ""
+                End Try
+            End With
+
+        Else
+        o_lbl_notice.Text = "Lütfen gerekli alanlarý doldurunuz"
+        End If
+    End Sub
+
+    Protected Sub o_btn_cancel2_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_btn_cancel2.Click
+        goster(Nothing)
+        o_txt_subject2.Text = ""
+        o_txt_compose2.Text = ""
+    End Sub
+#End Region
+#Region "Mesaj Gönderme [Öðrenci -> Personel]"
+    Protected Sub o_btn_sendp2_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_btn_sendp2.Click
+        If o_txt_subjectp2.Text <> "" And o_txt_composep2.Text <> "" Then
+
+
+            With _conn
+                Try
+                    _ip = Trim(CType(Context.Request.ServerVariables("REMOTE_ADDR"), String))
+                    If _ip Is Nothing Then _ip = "0.0.0.0"
+                Catch ex As Exception
+                End Try
+                Try
+                    If o_dlist_palici2.SelectedIndex <> -1 Then
+                        _sqlStr = "INSERT INTO PER_MESAJ (GOND_ID,GOND_AD,ALICI_ID,ALICI_AD,MSJ_KONU,MSJ_ICERIK,IP) VALUES (" _
+                        + CType(Session("id"), String) + ",'" + CType(Session("adsoyad"), String) + "','" _
+                        + CType(o_dlist_palici2.SelectedValue, String) + "','" + CType(o_dlist_palici2.SelectedItem.Text, String) + "','" _
+                        + o_txt_subjectp2.Text + "','" + o_txt_composep2.Text + "','" + _ip + "')"
+                    End If
+                    .InsertQuery(_sqlStr)
+                    goster(Nothing)
+                Catch _sqlExcp As Data.SqlClient.SqlException
+                    o_lbl_error.Text = _sqlExcp.Message
+                Finally
+                    .Close()
+                    o_txt_subjectp2.Text = ""
+                    o_txt_composep2.Text = ""
+                End Try
+            End With
+
+        Else
+        o_lbl_notice.Text = "Lütfen gerekli alanlarý doldurunuz"
+        End If
+    End Sub
+
+    Protected Sub o_btn_cancelp2_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_btn_cancelp2.Click
+        goster(Nothing)
+        o_txt_subjectp.Text = ""
+        o_txt_composep.Text = ""
+    End Sub
+#End Region
+
+#Region "DropDowns Reset"
+    Private Sub ClearDropDowns()
+        o_dlist_bolum.Enabled = False
+        o_dlist_bolum.ClearSelection()
+        o_dlist_bolum.Items.FindByValue(-1).Selected = True
+        o_dlist_bolumx.Enabled = False
+        o_dlist_bolumx.ClearSelection()
+        o_dlist_bolumx.Items.FindByValue(-1).Selected = True
+        o_dlist_oalici.Enabled = False
+        o_dlist_oalici.ClearSelection()
+        o_dlist_oalici.Items.FindByValue(-1).Selected = True
+    End Sub
+
+    Private Sub ClearDropDowns2()
+        o_dlist_oalici.Enabled = False
+        o_dlist_oalici.ClearSelection()
+        o_dlist_oalici.Items.FindByValue(-1).Selected = True
+    End Sub
+#End Region
+#Region "DropDowns [Personel -> Öðrenci]"
+    Protected Sub o_dlist_fak_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_fak.SelectedIndexChanged
+        o_dlist_fakx.Enabled = True
+        o_dlist_fakx.ClearSelection()
+        o_dlist_fakx.Items.FindByValue(-1).Selected = True
+        ClearDropDowns()
+    End Sub
+
+    Protected Sub o_dlist_fakx_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_fakx.SelectedIndexChanged
+        If o_dlist_fakx.SelectedValue = 0 Then
+            o_dlist_bolum.Enabled = True
+        ElseIf o_dlist_fakx.SelectedValue = -1 Then
+            ClearDropDowns()
+        ElseIf o_dlist_fakx.SelectedValue = 1 And o_dlist_bolum.Enabled = True And o_dlist_bolum.SelectedValue <> -1 Then
+            ClearDropDowns()
+        ElseIf o_dlist_fakx.SelectedValue = 1 And o_dlist_bolum.Enabled = True Then
+            o_dlist_bolum.Enabled = False
+        End If
+        If o_dlist_fakx.SelectedValue = 1 Then
+            o_btn_send.Enabled = True
+        End If
+    End Sub
+
+    Protected Sub o_dlist_bolum_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_bolum.SelectedIndexChanged
+        o_dlist_bolumx.Enabled = True
+    End Sub
+
+    Protected Sub o_dlist_bolumx_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_bolumx.SelectedIndexChanged
+        If o_dlist_bolumx.SelectedValue = 1 And o_dlist_dkod.Enabled = False Then
+            o_dlist_dkod.Enabled = True
+        End If
+
+        If o_dlist_bolumx.SelectedValue = 0 Then
+            o_dlist_oalici.Enabled = True
+        ElseIf o_dlist_bolumx.SelectedValue = -1 Then
+            ClearDropDowns2()
+        ElseIf o_dlist_bolumx.SelectedValue = 1 And o_dlist_oalici.Enabled = True And o_dlist_oalici.SelectedValue <> -1 Then
+            ClearDropDowns2()
+        ElseIf o_dlist_bolumx.SelectedValue = 1 And o_dlist_oalici.Enabled = True Then
+            ClearDropDowns2()
+        End If
+        If o_dlist_bolumx.SelectedValue = 1 Then
+            o_btn_send.Enabled = True
+        End If
+    End Sub
+
+    Protected Sub o_dlist_oalici_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_oalici.SelectedIndexChanged
+        o_btn_send.Enabled = True
+    End Sub
+#End Region
+#Region "DropDowns [Personel -> Personel]"
+    Protected Sub o_dlist_birim_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_birim.SelectedIndexChanged
+        o_dlist_birimx.Enabled = True
+        o_dlist_birimx.ClearSelection()
+        o_dlist_birimx.Items.FindByValue(-1).Selected = True
+    End Sub
+
+    Protected Sub o_dlist_birimx_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_birimx.SelectedIndexChanged
+        If o_dlist_birimx.SelectedValue = 0 Then
+            o_dlist_palici.Enabled = True
+            o_dlist_palici.ClearSelection()
+            o_dlist_palici.Items.FindByValue(-1).Selected = True
+        ElseIf o_dlist_birimx.SelectedValue = 1 Then
+            o_dlist_palici.Enabled = False
+            o_dlist_palici.ClearSelection()
+            o_dlist_palici.Items.FindByValue(-1).Selected = True
+            o_btn_sendp.Enabled = True
+        End If
+    End Sub
+
+    Protected Sub o_dlist_palici_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_palici.SelectedIndexChanged
+        o_btn_sendp.Enabled = True
+    End Sub
+#End Region
+
+#Region "DropDowns [Öðrenci -> Öðrenci]"
+    Protected Sub o_dlist_fak2_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_fak2.SelectedIndexChanged
+        o_dlist_bolum2.Enabled = True
+    End Sub
+
+    Protected Sub o_dlist_bolum2_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_bolum2.SelectedIndexChanged
+        o_dlist_oalici2.Enabled = True
+    End Sub
+
+    Protected Sub o_dlist_oalici2_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_oalici2.SelectedIndexChanged
+        If o_dlist_oalici2.SelectedIndex <> -1 Then
+            o_txt_subject2.Enabled = True
+            o_txt_compose2.Enabled = True
+            o_btn_send2.Enabled = True
+        End If
+    End Sub
+#End Region
+#Region "DropDowns [Öðrenci -> Personel]"
+    Protected Sub o_dlist_birim2_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_birim2.SelectedIndexChanged
+        If o_dlist_birim2.SelectedIndex <> -1 Then
+            o_dlist_palici2.Enabled = True
+        End If
+    End Sub
+
+    Protected Sub o_dlist_palici2_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_palici2.SelectedIndexChanged
+        If o_dlist_palici2.SelectedIndex <> -1 Then
+            o_txt_subjectp2.Enabled = True
+            o_txt_composep2.Enabled = True
+            o_btn_sendp2.Enabled = True
+        End If
+    End Sub
+#End Region
+
+#Region "DropDowns Databound [Personel -> Öðrenci]"
+    Protected Sub o_dlist_fak_DataBound(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_fak.DataBound
+        lisitem.Text = "Lütfen Seçiniz"
+        lisitem.Value = -1
+        o_dlist_fak.Items.Insert(0, lisitem)
+    End Sub
+
+    Protected Sub o_dlist_bolum_DataBound(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_bolum.DataBound
+        lisitem.Text = "Lütfen Seçiniz"
+        lisitem.Value = -1
+        o_dlist_bolum.Items.Insert(0, lisitem)
+    End Sub
+
+    Protected Sub o_dlist_oalici_DataBound(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_oalici.DataBound
+        lisitem.Text = "Lütfen Seçiniz"
+        lisitem.Value = -1
+        o_dlist_oalici.Items.Insert(0, lisitem)
+    End Sub
+
+    Protected Sub o_dlist_dkod_DataBound(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_dkod.DataBound
+        lisitem.Text = "Lütfen Seçiniz"
+        lisitem.Value = -1
+        o_dlist_dkod.Items.Insert(0, lisitem)
+    End Sub
+#End Region
+#Region "DropDowns Databound [Personel -> Personel]"
+    Protected Sub o_dlist_birim_DataBound(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_birim.DataBound
+        lisitem.Text = "Lütfen Seçiniz"
+        lisitem.Value = -1
+        o_dlist_birim.Items.Insert(0, lisitem)
+    End Sub
+
+    Protected Sub o_dlist_palici_DataBound(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_palici.DataBound
+        lisitem.Text = "Lütfen Seçiniz"
+        lisitem.Value = -1
+        o_dlist_palici.Items.Insert(0, lisitem)
+    End Sub
+#End Region
+
+#Region "DropDowns Databound [Öðrenci -> Öðrenci]"
+    Protected Sub o_dlist_fak2_DataBound(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_fak2.DataBound
+        lisitem.Text = "Lütfen Seçiniz"
+        lisitem.Value = -1
+        o_dlist_fak2.Items.Insert(0, lisitem)
+    End Sub
+
+    Protected Sub o_dlist_bolum2_DataBound(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_bolum2.DataBound
+        lisitem.Text = "Lütfen Seçiniz"
+        lisitem.Value = -1
+        o_dlist_bolum2.Items.Insert(0, lisitem)
+    End Sub
+
+    Protected Sub o_dlist_oalici2_DataBound(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_oalici2.DataBound
+        lisitem.Text = "Lütfen Seçiniz"
+        lisitem.Value = -1
+        o_dlist_oalici2.Items.Insert(0, lisitem)
+    End Sub
+#End Region
+#Region "DropDowns Databound [Öðrenci -> Personel]"
+    Protected Sub o_dlist_birim2_DataBound(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_birim2.DataBound
+        lisitem.Text = "Lütfen Seçiniz"
+        lisitem.Value = -1
+        o_dlist_birim2.Items.Insert(0, lisitem)
+    End Sub
+
+    Protected Sub o_dlist_palici2_DataBound(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_dlist_palici2.DataBound
+        lisitem.Text = "Lütfen Seçiniz"
+        lisitem.Value = -1
+        o_dlist_palici2.Items.Insert(0, lisitem)
+    End Sub
+#End Region
+End Class

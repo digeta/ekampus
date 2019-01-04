@@ -1,0 +1,234 @@
+﻿<%@ Page Title="" Language="VB" MasterPageFile="~/MasterPage.master" AutoEventWireup="false"
+    CodeFile="Kredisiz.aspx.vb" Inherits="Kredisiz" %>
+
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="ajaxToolkit" %>
+<asp:Content ID="Content3" ContentPlaceHolderID="o_cph_main" runat="Server">
+
+    <script type="text/javascript" language="javascript">
+        function onUpdating() {
+            // get the update progress div
+            //var updateProgressDiv = $get('updateProgressDiv'); 
+            var updateProgressDiv = document.getElementById('updateProgressDiv');
+            //var btnHesap = document.getElementById('<%= btnHesapla.ClientID %>');
+            var btnKayit = document.getElementById('<%= btnKaydet.ClientID %>');
+            // make it visible
+            updateProgressDiv.style.display = '';
+            //btnHesap.disabled = true;
+            btnKayit.disabled = true;
+            //  get the gridview element        
+            //var gridView = document.getElementById('<%= gridNotliste.ClientID %>');
+            var gridView = document.getElementById('divNotsistem');
+
+            // get the bounds of both the gridview and the progress div
+            var gridViewBounds = Sys.UI.DomElement.getBounds(gridView);
+            var updateProgressDivBounds = Sys.UI.DomElement.getBounds(updateProgressDiv);
+
+            //	do the math to figure out where to position the element (the center of the gridview)
+            //var x = gridViewBounds.x + Math.round(gridViewBounds.width / 2) - Math.round(updateProgressDivBounds.width / 2);
+            //var y = gridViewBounds.y + Math.round(gridViewBounds.height / 2) - Math.round(updateProgressDivBounds.height / 2);
+            //var y = 400;
+
+            //	set the progress element to this position
+            //Sys.UI.DomElement.setLocation (updateProgressDiv, x, y);        
+        }
+
+        function onUpdated() {
+            // get the update progress div
+            var updateProgressDiv = $get('updateProgressDiv');
+            // make it invisible
+            updateProgressDiv.style.display = 'none';
+            //var btnHesap = document.getElementById('<%= btnHesapla.ClientID %>');
+            var btnKayit = document.getElementById('<%= btnKaydet.ClientID %>');
+
+            //btnHesap.disabled = false;
+            btnKayit.disabled = false;
+        }    
+    </script>
+
+    <div id="divNotsistem" style="margin: 0 auto; width: 990px;">
+        <ajaxToolkit:UpdatePanelAnimationExtender ID="upanelExtender" BehaviorID="animation"
+            runat="server" TargetControlID="updatePanel">
+            <Animations>
+                    <OnUpdating>
+                        <Parallel duration="0">
+                            <%-- place the update progress div over the gridview control --%>
+                            <ScriptAction Script="onUpdating();" />  
+                            <%-- disable the search button --%>                       
+                            <EnableAction AnimationTarget="btnKaydet" Enabled="false" />
+                            <%-- fade-out the GridView --%>
+                            <FadeOut minimumOpacity=".8" />
+                         </Parallel>
+                    </OnUpdating>
+                    <OnUpdated>
+                        <Parallel duration="0">
+                            <%-- fade back in the GridView --%>
+                            <FadeIn minimumOpacity=".8" />
+                            <%-- re-enable the search button --%>  
+                            <EnableAction AnimationTarget="btnKaydet" Enabled="true" />
+                            <%--find the update progress div and place it over the gridview control--%>
+                            <ScriptAction Script="onUpdated();" />                             
+                        </Parallel> 
+                    </OnUpdated>
+            </Animations>
+        </ajaxToolkit:UpdatePanelAnimationExtender>
+        <asp:UpdatePanel ID="updatePanel" runat="server">
+            <ContentTemplate>
+                <div class="islemler">
+                    <fieldset class="islemlerFieldset">
+                        <legend>İşlemler</legend>
+                        <div style="padding: 5px; margin: 0 auto;">
+                            <div style="padding-bottom: 2px;">
+                                <div style="height: 25px;">
+                                    <div style="float: left; padding-left: 2px;">
+                                        <asp:Button ID="btnHesapla" runat="server" Text="Ortalama hesapla" Visible="False" />
+                                    </div>
+                                    <div style="float: left; padding-left: 2px;">
+                                        <asp:Button ID="btnKaydet" runat="server" Text="Notları Kaydet" Visible="True" />
+                                    </div>
+                                    <div style="float: left; padding-left: 2px;">
+                                        <asp:Button ID="btnOnayVer" runat="server" Text="Notları Onayla" Visible="True" />
+                                    </div>
+                                    <div style="clear: both;">
+                                    </div>
+                                </div>
+                                <div style="height: 25px; padding-top: 5px; padding-bottom: 5px;">
+                                    <div style="float: left; height: 25px; padding-left: 5px;">
+                                        <div style="float: left; height: 25px; padding-top: 5px;">
+                                            <asp:Label ID="lblVizeOran" runat="server" Text="Ara Sınav / Genel Sınav Oran :"></asp:Label>
+                                        </div>
+                                        <div style="float: left; height: 25px; padding-left: 5px; padding-top: 2px;">
+                                            <asp:DropDownList ID="DropDownList1" runat="server">
+                                                <asp:ListItem Value="40">40/60</asp:ListItem>
+                                                <asp:ListItem Value="50">50/50</asp:ListItem>
+                                                <asp:ListItem Value="60">60/40</asp:ListItem>
+                                            </asp:DropDownList>
+                                        </div>
+                                        <div style="clear: both;">
+                                        </div>
+                                    </div>
+                                    <div style="clear: both;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="height: 58px; padding-bottom: 2px;">
+                                <div style="height: 30px;">
+                                    <div style="float: left; width: 200px;">
+                                        <asp:Label ID="lblSinifOrtalama" runat="server"></asp:Label>
+                                    </div>
+                                    <div style="float: left; width: 200px;">
+                                        <asp:Label ID="lblStdSapma" runat="server"></asp:Label>
+                                    </div>
+                                </div>
+                                <div style="height: 30px;">
+                                    <div style="float: left; width: 200px;">
+                                        <asp:Label ID="lblSnfTop" runat="server"></asp:Label>
+                                    </div>
+                                    <div style="float: left; width: 200px;">
+                                        <asp:Label ID="lblBnoTop" runat="server"></asp:Label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="height: 24px; text-align: center; padding-top: 3px; padding-bottom: 3px;">
+                                <asp:Label ID="lblUyari" runat="server" Font-Bold="True" ForeColor="#C00000" Visible="False"></asp:Label><br />
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="padding-bottom: 5px;">
+                                    <span>Notları gözden geçirip uygun olduğuna karar verdiğinizde <font color="red">Notları
+                                        Kaydet</font> butonu ile kaydetme işlemini yapmalısınız</span>
+                                </div>
+                                <div style="padding-bottom: 5px;">
+                                    <span><font color="red">Notları Onayla</font> butonuna tıklayarak notların yayınlanmasına
+                                        izin vermediğiniz sürece, notlar öğrenciler tarafından görüntülenemeyecektir.
+                                    </span>
+                                </div>
+                                <div style="padding-bottom: 5px;">
+                                </div>
+                            </div>
+                            <div style="height: 25px; margin: 0 auto;">
+                                <div style="float: left; padding-top: 6px;">
+                                    <asp:Label ID="lblDerskodu" runat="server" ForeColor="#FF9900"></asp:Label>
+                                </div>
+                                <div style="float: right;">
+                                </div>
+                                <div style="float: right; padding-right: 5px;">
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div id="updateProgressDiv" style="display: none; height: 90px; width: 630px; margin: 0 auto;
+                    margin-top: 10px;">
+                    <div style="width: 250px; height: 20px; margin: 0 auto; text-align: center; font-family: Verdana;
+                        font-size: 15px; font-weight: bold;">
+                        Lütfen Bekleyin...</div>
+                    <div style="width: 250px; height: 70px; margin: 0 auto; text-align: center;">
+                        <img alt="Lütfen Bekleyin..." src='images/ajax-loader.gif' style="border: 0px; margin: 0 auto;" /></div>
+                </div>
+                <div id="divDersler" runat="server" class="yeniders2" visible="false">
+                    <fieldset class="notlarFieldset">
+                        <legend>Dersler ve Notlar</legend>
+                        <div style="margin: 0 auto; padding: 10px;">
+                            <div style="margin: 0 auto; width: 600px;">
+                                <asp:GridView ID="gridNotliste" runat="server" AutoGenerateColumns="False" CellPadding="4"
+                                    DataKeyNames="ID,FAKNO,VIZE_DURUM,VIZE_ORT,OGRENCI,BNO,BN_DEGERLENDIR" GridLines="None">
+                                    <RowStyle BackColor="#F7F6F3" />
+                                    <Columns>
+                                        <asp:TemplateField HeaderText="Öğrenci No.">
+                                            <ItemTemplate>
+                                                <asp:Label ID="lblFakno" runat="server" Text='<%# Bind ("FAKNO") %>'></asp:Label>
+                                            </ItemTemplate>
+                                            <HeaderStyle Wrap="False" />
+                                            <ItemStyle Wrap="False" />
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Öğrenci">
+                                            <ItemTemplate>
+                                                <asp:Label ID="lblOgrenci" runat="server" Text='<%# Bind ("OGRENCI") %>'></asp:Label>
+                                            </ItemTemplate>
+                                            <HeaderStyle Wrap="False" />
+                                            <ItemStyle Wrap="False" />
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Arasınav durum">
+                                            <ItemTemplate>
+                                                <asp:Label ID="lblAraSinavDurum" runat="server" Text='<%# iif(gridNotliste.DataKeys(gridNotliste.rows.Count)("VIZE_DURUM")=0,"Girmedi","Girdi") %>' />
+                                            </ItemTemplate>
+                                            <HeaderStyle Wrap="False" />
+                                            <ItemStyle Wrap="False" HorizontalAlign="Center" />
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Arasınav notu">
+                                            <ItemTemplate>
+                                                <asp:Label ID="lblAraSinav" runat="server" Text='<%# iif(gridNotliste.DataKeys(gridNotliste.rows.Count)("VIZE_ORT")>64,"Geçti","Kaldı") %>' />
+                                            </ItemTemplate>
+                                            <HeaderStyle Wrap="False" />
+                                            <ItemStyle Wrap="False" HorizontalAlign="Center" />
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Başarı">
+                                            <ItemTemplate>
+                                                <asp:DropDownList ID="ddlBno" runat="server" SelectedValue='<%# BNO() %>'>
+                                                    <asp:ListItem Value="0">0</asp:ListItem>
+                                                    <asp:ListItem Value="G">Geçti</asp:ListItem>
+                                                    <asp:ListItem Value="K">Kaldı</asp:ListItem>
+                                                    <asp:ListItem Value="EK">Eksik</asp:ListItem>
+                                                </asp:DropDownList>
+                                            </ItemTemplate>
+                                            <HeaderStyle Wrap="False" />
+                                            <ItemStyle Wrap="False" HorizontalAlign="Center" />
+                                        </asp:TemplateField>
+                                    </Columns>
+                                    <FooterStyle BackColor="#5D7B9D" Font-Bold="True" ForeColor="White" />
+                                    <PagerStyle BackColor="#284775" ForeColor="White" HorizontalAlign="Center" />
+                                    <SelectedRowStyle BackColor="#E2DED6" Font-Bold="True" ForeColor="#333333" />
+                                    <HeaderStyle Font-Bold="True" CssClass="GridHeader" />
+                                    <EditRowStyle BackColor="#999999" />
+                                    <AlternatingRowStyle BackColor="White" ForeColor="#284775" />
+                                </asp:GridView>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </ContentTemplate>
+            <Triggers>
+                <asp:AsyncPostBackTrigger ControlID="btnKaydet" EventName="Click" />
+            </Triggers>
+        </asp:UpdatePanel>
+    </div>
+</asp:Content>

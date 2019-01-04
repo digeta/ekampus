@@ -1,0 +1,155 @@
+﻿<%@ Page Title="" Language="VB" MasterPageFile="~/MasterPage.master" AutoEventWireup="false"
+    CodeFile="Derslerim_f.aspx.vb" Inherits="Derslerim_f" %>
+
+<asp:Content ID="Content3" ContentPlaceHolderID="o_cph_main" runat="Server">
+    <div class="div_derslerContainer">
+        <fieldset class="derslerFieldset">
+            <legend style="color: Black;">Atanmış olduğunuz dersler</legend>
+            <div class="div_warning">
+                <div class="div_innerwarn">
+                    <asp:Label ID="lblUyari" runat="server" Font-Bold="True" ForeColor="#990000" EnableViewState="False"></asp:Label>
+                </div>
+            </div>
+            <div class="dersler">
+            <div>
+                <asp:GridView HorizontalAlign="Center" ID="gridDersler" runat="server" AutoGenerateColumns="False"
+                    CellPadding="4" ForeColor="#333333" GridLines="None" HeaderStyle-CssClass="GridHeader"
+                    DataKeyNames="ID,KATID,HOCASAY,ATANAN_ID,BIRIM,DERSKOD,DERSAD,VIZE_ONAY,FINAL_ONAY,BUT_ONAY,KRD,BAGIL,KLASIK,OGRSAY,BAGILKODU">
+                    <FooterStyle BackColor="#5D7B9D" Font-Bold="True" ForeColor="White" />
+                    <RowStyle BackColor="#F7F6F3" ForeColor="#333333" />
+                    <Columns>
+                        <asp:TemplateField HeaderText="">
+                            <ItemTemplate>
+                                <asp:CheckBox ID="chkBirlestir" runat="server" Visible="false" />
+                            </ItemTemplate>
+                            <HeaderStyle Wrap="False" HorizontalAlign="Left" />
+                            <ItemStyle Wrap="False"/>
+                        </asp:TemplateField>                    
+                        <asp:TemplateField HeaderText="Ders Kodu">
+                            <ItemTemplate>
+                                <asp:Label ID="lblDerskod" runat="server" Text='<%# Bind ("DERSKOD") %>'></asp:Label>
+                            </ItemTemplate>
+                            <HeaderStyle Wrap="False" HorizontalAlign="Left" />
+                            <ItemStyle Wrap="False" Width="80px" />
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="Ders Adı">
+                            <ItemTemplate>
+                                <asp:Label ID="lblDersad" runat="server" Text='<%# Bind ("DERSAD") %>'></asp:Label>
+                            </ItemTemplate>
+                            <HeaderStyle Wrap="False" HorizontalAlign="Left" />
+                            <ItemStyle Wrap="true" Width="200px" />
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="Fakülte">
+                            <ItemTemplate>
+                                <asp:Label ID="lblFakulte" runat="server" Text='<%# Bind ("FAKULTE_AD") %>'></asp:Label>
+                            </ItemTemplate>
+                            <HeaderStyle Wrap="False" HorizontalAlign="Left" />
+                            <ItemStyle Wrap="False" Width="90px" />
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="Bölüm">
+                            <ItemTemplate>
+                                <asp:Label ID="lblBolum" runat="server" Text='<%# Bind ("BOLUM_AD") %>'></asp:Label>
+                            </ItemTemplate>
+                            <HeaderStyle Wrap="False" HorizontalAlign="Left" />
+                            <ItemStyle Wrap="False" Width="220px" />
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="Onay">
+                            <ItemTemplate>
+                                <asp:Label ID="lblOnay" runat="server" Text='<%# iif(gridDersler.DataKeys(gridDersler.rows.Count)("FINAL_ONAY")=0,"Yok","Var") %>'></asp:Label>
+                            </ItemTemplate>
+                            <HeaderStyle Wrap="False" HorizontalAlign="Left" />
+                            <ItemStyle Wrap="False" Width="80px" />
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="Bağıl D.">
+                            <ItemTemplate>
+                                <div style="width: 48px; height: 48px; background-image: url('images/Grid/notBagil.png')">
+                                    <div style="position: relative; top: 18px; left: 9px;">
+                                        <asp:Button ID="btnBagil" runat="server" Text='<%# Bind ("BAGIL") %>' BackColor="Transparent"
+                                            BorderStyle="None" OnClick="btnBagil_Click" Enabled='<%# iif(gridDersler.DataKeys(gridDersler.rows.Count)("BAGIL")>0,true,false)%>' />
+                                    </div>
+                                </div>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="Klasik">
+                            <ItemTemplate>
+                                <div style="width: 48px; height: 48px; background-image: url('images/Grid/notKlasik.png')">
+                                    <div style="position: relative; top: 18px; left: 9px;">
+                                        <asp:Button ID="btnKlasik" runat="server" Text='<%# Bind ("KLASIK") %>' BackColor="Transparent"
+                                            BorderStyle="None" OnClick="btnKlasik_Click" Enabled='<%# iif(gridDersler.DataKeys(gridDersler.rows.Count)("KLASIK")>0,true,false)%>' />
+                                    </div>
+                                </div>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="Kredisiz">
+                            <ItemTemplate>
+                                <div style="width: 48px; height: 48px; background-image: url('images/Grid/notKredisiz.png')">
+                                    <div style="position: relative; top: 18px; left: 9px;">
+                                        <asp:Button ID="btnKredisiz" runat="server" Text='<%# iif(gridDersler.DataKeys(gridDersler.rows.Count)("KRD")>0,0, gridDersler.DataKeys(gridDersler.rows.Count)("OGRSAY")) %>'
+                                            BackColor="Transparent" BorderStyle="None" OnClick="btnKredisiz_Click" Enabled='<%# iif(gridDersler.DataKeys(gridDersler.rows.Count)("KRD")>0,false,iif(gridDersler.DataKeys(gridDersler.rows.Count)("OGRSAY")>0,true,false))%>' />
+                                    </div>
+                                </div>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                    </Columns>
+                    <PagerStyle BackColor="#284775" ForeColor="White" HorizontalAlign="Center" />
+                    <SelectedRowStyle BackColor="#E2DED6" Font-Bold="True" ForeColor="#333333" />
+                    <HeaderStyle BackColor="#5D7B9D" Font-Bold="True" CssClass="GridHeader" />
+                    <EditRowStyle BackColor="#999999" />
+                    <AlternatingRowStyle BackColor="White" ForeColor="#284775" />
+                </asp:GridView>
+            </div>
+            <div style="padding-top: 2px; padding-left: 1px; display: none;">
+            <div style="float: left;"><asp:ImageButton ID="imgbBirlestir" runat="server" ImageUrl="images/birlestir.png" /></div>
+            <div style="float: left; padding-top: 10px; padding-left: 5px;"><span>Bu işlem seçtiğiniz derslerdeki öğrencilerin ortak olarak değerlendirilmesini sağlayacaktır.</span></div>
+            <div style="clear: both;"></div>
+            </div>
+            </div>
+        </fieldset>
+    </div>
+    <div style="clear: both;">
+    </div>
+    <div class="BilgiMain">
+        <fieldset class="BilgiFieldset">
+            <legend style="color: Black;">Bilgilendirme</legend>
+            <div>
+                <div style="height: 48px;">
+                    <div style="float: left; width: 48px; height: 48px; background-image: url('images/Grid/notBagil.png')">
+                    </div>
+                    <div style="float: left; padding-top: 23px;">
+                        <span>Bağıl değerlendirmeye katılanların sayılarını gösterir.Sayı üzerine tıklayarak
+                            bağıl değerlendirme yapabileceğiniz bölüme girebilirsiniz.</span></div>
+                    <div style="clear: both;">
+                    </div>
+                </div>
+                <div style="height: 48px;">
+                    <div style="float: left; width: 48px; height: 48px; background-image: url('images/Grid/notKlasik.png')">
+                    </div>
+                    <div style="float: left; height: 25px; padding-top: 23px;">
+                        <span>Eski not sistemine katılanların sayılarını gösterir.Sayı üzerine tıklayarak eski
+                            not sistemine göre değerlendirme yapabileceğiniz bölüme girebilirsiniz.</span></asp:Label></div>
+                    <div style="clear: both;">
+                    </div>
+                </div>
+                <div style="height: 48px;">
+                    <div style="float: left; width: 48px; height: 48px; background-image: url('images/Grid/notKredisiz.png')">
+                    </div>
+                    <div style="float: left; height: 25px; padding-top: 23px;">
+                        <span>Kredisiz ders sınıf mevcudunu gösterir.Sayı üzerine tıklayarak kredisiz ders notu
+                            girişi yapabileceğiniz bölüme girebilirsiniz.</span></div>
+                    <div style="clear: both;">
+                    </div>
+                </div>
+                <div style="height: 48px;">
+                    <div style="float: left; width: 48px; height: 48px; background-image: url('images/Grid/important.png')">
+                    </div>
+                    <div style="height: 35px; padding-top: 10px;">
+                        <span>Öğrencilerin notları görebilmesi için notların yayınlanmasına izin vermeniz gerekiyor.Bu
+                            işlemi not giriş sayfasındaki Notları Onayla butonuna tıklayarak yapabilirsiniz.
+                            </span></div>
+                    <div style="clear: both;">
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+</asp:Content>

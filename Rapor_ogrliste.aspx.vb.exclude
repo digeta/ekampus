@@ -1,0 +1,130 @@
+﻿Imports CrystalDecisions.Shared
+Imports CrystalDecisions.CrystalReports.Engine
+Imports CrystalDecisions.Web
+Imports System.Data
+Imports System.Data.SqlClient
+
+Partial Class Rapor_ogrliste
+    Inherits System.Web.UI.Page
+
+    Private conn As New SqlConnection(ConfigurationManager.AppSettings("conn1"))
+    Private connStrBuilder As New Data.Common.DbConnectionStringBuilder
+
+    Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        If Session("kisino") = 0 Or Session("kisino") Is Nothing Then
+            Response.Redirect("Login.aspx", True)
+            Exit Sub
+        End If
+
+        'Session("kisino") = 178
+
+        If Session("parola_zorla") = True Then
+            Response.Redirect("Pass.aspx")
+            Exit Sub
+        End If
+
+        'lblUyari.Visible = True
+        'lblUyari.Text = "<a href=""http://server.karaelmas.edu.tr/ekamp_test/Login.aspx"">Staj not giriş ve döküm işlemleri için buraya tıklayın, bu sayfada yeniden giriş yapmanız gerekecektir.</a>"
+        connStrBuilder.ConnectionString = ConfigurationManager.AppSettings("conn1")
+        If Page.IsPostBack = False Then
+            ogrencilerGetir()
+        End If
+    End Sub
+
+    Private Sub ogrencilerGetir()
+        Try
+            Dim command As New SqlCommand("stp_YNS_OGRENCI_LISTELE", conn)
+            command.CommandType = Data.CommandType.StoredProcedure
+
+            With command.Parameters
+                .AddWithValue("KURUMSICIL", Session("kisino"))
+            End With
+
+            Dim Adapter As SqlDataAdapter = New SqlDataAdapter(command)
+
+            Dim dt As New DataTable
+
+            If conn.State <> Data.ConnectionState.Open Then conn.Open()
+            Adapter.Fill(dt)
+            If conn.State = Data.ConnectionState.Open Then conn.Close()
+
+            Session("DT_OGRENCI") = dt
+            grid_ogrenciler.DataSource = dt
+            grid_ogrenciler.DataBind()
+
+            'If Not dt.Rows.Count > 0 Then divDersler.Visible = False Else divDersler.Visible = True
+        Catch ex As Exception
+            lblUyari.Visible = True
+            'lblUyari.Text = "Bir hata oluştu.Bilgi İşlem' e başvurunuz."
+            lblUyari.Text = ex.Message
+        Finally
+            If conn.State = Data.ConnectionState.Open Then conn.Close()
+        End Try
+    End Sub
+
+
+    Private Sub rapor_yukle()
+        Try
+            Dim ReportPath As String = Server.MapPath("ogrNotListe.rpt")
+            Dim rptDoc As New ReportDocument
+            rptDoc.Load(ReportPath)
+            rptDoc.SetDatabaseLogon(connStrBuilder("user id"), connStrBuilder("password"))
+
+            Dim crParameterDiscreteValue As ParameterDiscreteValue
+            Dim crParameterFieldDefinitions As ParameterFieldDefinitions
+            Dim crParameterFieldLocation As ParameterFieldDefinition
+            Dim crParameterValues As ParameterValues
+            '
+            ' Get the report parameters collection.
+            '
+            crParameterFieldDefinitions = rptDoc.DataDefinition.ParameterFields
+
+            ' Add a parameter value - START
+            crParameterFieldLocation = crParameterFieldDefinitions.Item("@FAKNO")
+            crParameterValues = crParameterFieldLocation.CurrentValues
+            crParameterDiscreteValue = New CrystalDecisions.Shared.ParameterDiscreteValue
+            crParameterDiscreteValue.Value = Session("FAKNO")
+            crParameterValues.Add(crParameterDiscreteValue)
+            crParameterFieldLocation.ApplyCurrentValues(crParameterValues)
+            ' Add a parameter value - END
+
+            Dim rpBolum As TextObject = rptDoc.ReportDefinition.ReportObjects("rptxtBolum")
+            rpBolum.Text = Session("BOLUMAD")
+            Dim rpOgrno As TextObject = rptDoc.ReportDefinition.ReportObjects("rptxtOgrno")
+            rpOgrno.Text = Session("FAKNO")
+            Dim rpOgr As TextObject = rptDoc.ReportDefinition.ReportObjects("rptxtOgr")
+            rpOgr.Text = Session("OGRENCI")
+            'Dim rpUnvan As TextObject = rptDoc.ReportDefinition.ReportObjects("rptxtUnvan")
+            'rpUnvan.Text = Session("unvan")
+            'Dim rpSorumlu As TextObject = rptDoc.ReportDefinition.ReportObjects("rptxtSorumlu")
+            'rpSorumlu.Text = Session("adsoyad")
+
+            'Dim stream As IO.MemoryStream = rptDoc.ExportToStream(ExportFormatType.PortableDocFormat)
+            Response.ClearContent()
+            Response.ClearHeaders()
+            Response.Buffer = True
+            Response.ContentType = "application/pdf"
+            'Response.AddHeader("Content-Disposition", "inline; filename=Liste")
+            'Response.BinaryWrite(stream.ToArray())
+            Dim rptFileName As String = Session("FAKNO") & "_" & Session("OGRENCI") & "_NotListesi"
+            rptDoc.ExportToHttpResponse(ExportFormatType.PortableDocFormat, Response, True, rptFileName)
+            Response.End()
+        Catch ex As Exception
+            lblUyari.Visible = True
+            'lblUyari.Text = "Rapor oluşturma işlemi sırasında bir hata oluştu.Bilgi İşlem' e başvurunuz."
+            lblUyari.Text = ex.Message
+        End Try
+    End Sub
+
+    Protected Sub btnDoktur_Click(ByVal sender As Object, ByVal e As System.EventArgs)
+        Dim button As Button = CType(sender, Button)
+        Dim grow As GridViewRow = CType(button.Parent.Parent, GridViewRow)
+        Dim rowIndex As Integer = grow.RowIndex
+
+        Session("BOLUMAD") = grid_ogrenciler.DataKeys(rowIndex)("BOLUMAD")
+        Session("FAKNO") = grid_ogrenciler.DataKeys(rowIndex)("FAKNO")
+        Session("OGRENCI") = grid_ogrenciler.DataKeys(rowIndex)("OGRENCI")
+
+        rapor_yukle()
+    End Sub
+End Class

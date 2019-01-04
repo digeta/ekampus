@@ -1,0 +1,53 @@
+
+Partial Class Support
+    Inherits System.Web.UI.Page
+
+    Private _conn As New dConn(0)
+    Private _sqlStr, _ip As String
+
+
+    Protected Sub o_btn_send_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles o_btn_send.Click
+        If o_txt_sub.Text <> "" And o_txt_msg.Text <> "" Then
+
+            With _conn
+
+                Try
+                    _ip = Trim(CType(Context.Request.ServerVariables("REMOTE_ADDR"), String))
+                    If _ip Is Nothing Then _ip = "0.0.0.0"
+                Catch ex As Exception
+                End Try
+
+                Try
+                    _sqlStr = "INSERT INTO SUPPORT (SENDERID,SENDERNAME,SUBJECT,MESSAGE,IP) VALUES (" _
+                    & CType(Session("id"), String) & ",'" & CType(Session("adsoyad"), String) & "','" _
+                    & o_txt_sub.Text & "','" & o_txt_msg.Text & "','" & _ip & "')"
+                    .InsertQuery(_sqlStr)
+                    o_lbl_notice.Text = "Mesajýnýz Gönderildi"
+                    o_txt_sub.Text = ""
+                    o_txt_msg.Text = ""
+                    'o_pnl_reply.Visible = False
+                Catch _sqlExcp As Data.SqlClient.SqlException
+                    o_txt_sub.Text = ""
+                    o_txt_msg.Text = ""
+                    o_lbl_notice.Text = _sqlExcp.Message
+                Finally
+                    .Close()
+                End Try
+            End With
+
+        Else
+        o_lbl_notice.Text = "Lütfen gerekli alanlarý doldurunuz"
+        End If
+    End Sub
+
+    Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        Response.Redirect("Default.aspx")
+        Exit Sub
+
+        If Session("kisino") = 0 Then
+            Server.Transfer("Login.aspx")
+        End If
+        Session("PageIs") = ""
+
+    End Sub
+End Class

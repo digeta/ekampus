@@ -1,0 +1,14 @@
+
+Partial Class Errors
+    Inherits System.Web.UI.Page
+
+    Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        If Session("kisino") = 0 Then
+            Server.Transfer("Login.aspx")
+        End If
+
+        If Session("authorized") = "None" Then
+            o_lbl_error.Text = "Bu bölümü kullanmaya yetkiniz yoktur."
+        End If
+    End Sub
+End Class

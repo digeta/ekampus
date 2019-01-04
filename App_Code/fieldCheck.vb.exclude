@@ -1,0 +1,133 @@
+Imports Microsoft.VisualBasic
+
+Public Class fieldCheck
+    Private tcont As Control
+    Private obj As TextBox
+    Private obj_dli As DropDownList
+    Private obj_lbl As Label
+    Public pgvalid, gridValid As Boolean
+
+    Public Sub TextBoxCheck(ByVal obj As TextBox, ByVal fForm As ContentPlaceHolder)
+        If obj.Text.Contains("'") Or obj.Text.Contains(";") Or obj.Text.Contains("=") _
+            Or obj.Text.Contains("%") Or obj.Text.Contains("/*") Or obj.Text.Contains("*/") _
+            Or obj.Text.Contains("|") Or obj.Text.Contains("/") Or obj.Text.Contains("\") _
+            Or obj.Text.Contains("..") Or obj.Text.Contains("--") Or obj.Text.Contains("`") _
+            Then
+            obj.Text = ""
+            'obj.BackColor = Drawing.Color.Red
+            pgvalid = False
+            CType(fForm.FindControl("o_lbl_notice"), Label).Text = "Hatalý Karakter Kullandýnýz"
+        End If
+    End Sub
+
+    Public Sub controlsCheck(ByVal fForm As ContentPlaceHolder)
+        For Each tcont In fForm.Controls
+            If TypeOf tcont Is TextBox Then
+                obj = (CType(tcont, TextBox))
+                If obj.Text.Contains("'") Or obj.Text.Contains(";") Or obj.Text.Contains("=") _
+                Or obj.Text.Contains("%") Or obj.Text.Contains("/*") Or obj.Text.Contains("*/") _
+                Or obj.Text.Contains("|") Or obj.Text.Contains("/") Or obj.Text.Contains("\") _
+                Or obj.Text.Contains("..") Or obj.Text.Contains("--") Or obj.Text.Contains("`") _
+                Then
+                    obj.Text = ""
+                    'obj.BackColor = Drawing.Color.Red
+                    pgvalid = False
+                    CType(fForm.FindControl("o_lbl_notice"), Label).Text = "Hatalý Karakter Kullandýnýz"
+                End If
+            ElseIf TypeOf tcont Is DropDownList Then
+                obj_dli = CType(tcont, DropDownList)
+                If obj_dli.SelectedValue.Contains("'") Or obj_dli.SelectedValue.Contains(";") _
+                Or obj_dli.SelectedValue.Contains("=") Or obj_dli.SelectedValue.Contains("%") _
+                Or obj_dli.SelectedValue.Contains("/*") Or obj_dli.SelectedValue.Contains("*/") _
+                Or obj_dli.SelectedValue.Contains("|") Or obj_dli.SelectedValue.Contains("/") _
+                Or obj_dli.SelectedValue.Contains("\") Or obj_dli.SelectedValue.Contains("..") _
+                Or obj_dli.SelectedValue.Contains("--") Or obj_dli.SelectedValue.Contains("`") _
+                Then
+                    pgvalid = False
+                    CType(fForm.FindControl("o_lbl_notice"), Label).Text = "Hatalý Karakter Kullandýnýz"
+                End If
+            End If
+        Next
+    End Sub
+
+    Public Sub controlsCheckPanel(ByVal fForm As Panel)
+        For Each tcont In fForm.Controls
+            If TypeOf tcont Is TextBox Then
+                obj = (CType(tcont, TextBox))
+                If obj.Text.Contains("'") Or obj.Text.Contains(";") Or obj.Text.Contains("=") _
+                Or obj.Text.Contains("%") Or obj.Text.Contains("/*") Or obj.Text.Contains("*/") _
+                Or obj.Text.Contains("|") Or obj.Text.Contains("/") Or obj.Text.Contains("\") _
+                Or obj.Text.Contains("..") Or obj.Text.Contains("--") Or obj.Text.Contains("`") _
+                Then
+                    'obj.Text = ""
+                    obj.BackColor = Drawing.Color.Red
+                    pgvalid = False
+                    CType(fForm.FindControl("o_lbl_notice"), Label).Text = "Hatalý Karakter Kullandýnýz"
+                Else
+                    obj.BackColor = Drawing.Color.White
+                End If
+            ElseIf TypeOf tcont Is DropDownList Then
+                obj_dli = CType(tcont, DropDownList)
+                If obj_dli.SelectedValue.Contains("'") Or obj_dli.SelectedValue.Contains(";") _
+                Or obj_dli.SelectedValue.Contains("=") Or obj_dli.SelectedValue.Contains("%") _
+                Or obj_dli.SelectedValue.Contains("/*") Or obj_dli.SelectedValue.Contains("*/") _
+                Or obj_dli.SelectedValue.Contains("|") Or obj_dli.SelectedValue.Contains("/") _
+                Or obj_dli.SelectedValue.Contains("\") Or obj_dli.SelectedValue.Contains("..") _
+                Or obj_dli.SelectedValue.Contains("--") Or obj_dli.SelectedValue.Contains("`") _
+                Then
+                    pgvalid = False
+                    CType(fForm.FindControl("o_lbl_notice"), Label).Text = "Hatalý Karakter Kullandýnýz"
+                End If
+            End If
+        Next
+    End Sub
+
+    Public Sub GridViewCheck(ByVal _grid As GridView)
+        Dim _rcount, i, j, _ccount As Integer
+        _rcount = _grid.Rows.Count
+        For i = 0 To _rcount - 1
+            _ccount = _grid.Rows(i).Cells.Count
+            For j = 0 To _ccount - 1
+                For Each tcont In _grid.Rows(i).Cells(j).Controls
+                    If TypeOf tcont Is TextBox Then
+                        obj = (CType(tcont, TextBox))
+                        If obj.Text.Contains("'") Or obj.Text.Contains(";") Or obj.Text.Contains("=") _
+                        Or obj.Text.Contains("%") Or obj.Text.Contains("/*") Or obj.Text.Contains("*/") _
+                        Or obj.Text.Contains("|") Or obj.Text.Contains("/") Or obj.Text.Contains("\") _
+                        Or obj.Text.Contains("..") Or obj.Text.Contains("--") Or obj.Text.Contains("`") _
+                        Then
+                            'obj.Text = ""
+                            'obj.BackColor = Drawing.Color.Red
+                            gridValid = False
+                            'CType(fForm.FindControl("o_lbl_notice"), Label).Text = "Hatalý Karakter Kullandýnýz"
+                        End If
+                    ElseIf TypeOf tcont Is DropDownList Then
+                        obj_dli = CType(tcont, DropDownList)
+                        If obj_dli.SelectedValue.Contains("'") Or obj_dli.SelectedValue.Contains(";") _
+                        Or obj_dli.SelectedValue.Contains("=") Or obj_dli.SelectedValue.Contains("%") _
+                        Or obj_dli.SelectedValue.Contains("/*") Or obj_dli.SelectedValue.Contains("*/") _
+                        Or obj_dli.SelectedValue.Contains("|") Or obj_dli.SelectedValue.Contains("/") _
+                        Or obj_dli.SelectedValue.Contains("\") Or obj_dli.SelectedValue.Contains("..") _
+                        Or obj_dli.SelectedValue.Contains("--") Or obj_dli.SelectedValue.Contains("`") _
+                        Then
+                            gridValid = False
+                            'CType(fForm.FindControl("o_lbl_notice"), Label).Text = "Hatalý Karakter Kullandýnýz"
+                        End If
+                    ElseIf TypeOf tcont Is Label Then
+                        obj_lbl = CType(tcont, Label)
+                        If obj_lbl.Text.Contains("'") Or obj_lbl.Text.Contains(";") Or obj_lbl.Text.Contains("=") _
+                        Or obj_lbl.Text.Contains("%") Or obj_lbl.Text.Contains("/*") Or obj_lbl.Text.Contains("*/") _
+                        Or obj_lbl.Text.Contains("|") Or obj_lbl.Text.Contains("/") Or obj_lbl.Text.Contains("\") _
+                        Or obj_lbl.Text.Contains("..") Or obj_lbl.Text.Contains("--") Or obj_lbl.Text.Contains("`") _
+                        Then
+                            'obj.Text = ""
+                            'obj.BackColor = Drawing.Color.Red
+                            gridValid = False
+                            'CType(fForm.FindControl("o_lbl_notice"), Label).Text = "Hatalý Karakter Kullandýnýz"
+                        End If
+                    End If
+                Next
+            Next
+        Next
+    End Sub
+End Class

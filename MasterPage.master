@@ -1,0 +1,102 @@
+<%@ Master Language="VB" CodeFile="MasterPage.master.vb" Inherits="MasterPage" %>
+
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="ajaxToolkit" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <meta http-equiv="Expires" content="Mon, 04 Dec 1999 21:29:02 GMT" />
+    <meta http-equiv="PRAGMA" content="NO-CACHE" />
+    <title>e-üniversite 0.1</title>
+    <link href="freeStyle.css" type="text/css" rel="stylesheet" />
+    <!--[if IE 6]>
+<style type="text/css">
+   img, div, input { behavior: url("iepngfix.htc") }
+</style>
+<![endif]-->
+
+    <script language="javascript" type="text/javascript">
+        function getScrollBottom(p_oElem) {
+            return (p_oElem.scrollHeight - 7) - p_oElem.scrollTop - p_oElem.clientHeight;
+        }
+    </script>
+
+</head>
+<body>
+    <div class="Content">
+        <form id="form_master" runat="server">
+        <div class="Header">
+            <div class="LogoContainer">
+                <div class="LogoEkampus">
+                    <asp:Image ID="ekampLogo" runat="server" ImageUrl="~/images/22.png" ImageAlign="Top" />
+                </div>
+                <div class="LogoZku">
+                    <asp:Image ID="zkuLogo" runat="server" ImageUrl="~/images/zkulogo.png"></asp:Image>
+                </div>
+                <div style="clear: both; height: 0;">
+                </div>
+            </div>
+            <div class="Base">
+                <div style="text-align: center">
+                    <asp:Label ID="lblUyari" runat="server" Font-Bold="True" ForeColor="Red" Visible="False"
+                        Font-Names="Verdana" Font-Size="Small"></asp:Label>
+                </div>
+                <div class="greetings">
+                    <asp:Label ID="o_lbl_greet" runat="server"></asp:Label></div>
+                <div id="o_div_menu" runat="server" visible="false" style="margin-left: 0; margin-top: 5px;
+                    width: 100%; background-image: url('images/header2.png'); background-repeat: repeat-x;
+                    height: 35px;">
+                    <div style="padding-top: 5px; z-index: 1;">
+                        <asp:Menu ID="topmenu" runat="server" DynamicHorizontalOffset="2" Font-Names="Verdana"
+                            Font-Size="8pt" ForeColor="#404040" Orientation="Horizontal" StaticSubMenuIndent="10px"
+                            BorderColor="Transparent" DynamicVerticalOffset="5" Font-Bold="True" Height="25px">
+                            <StaticMenuItemStyle HorizontalPadding="5px" VerticalPadding="2px" />
+                            <DynamicHoverStyle BackColor="Silver" ForeColor="White" />
+                            <StaticSelectedStyle BackColor="#1C5E55" />
+                            <DynamicMenuStyle CssClass="DynamicMenu" />
+                            <DynamicSelectedStyle BackColor="#404040" ForeColor="White" />
+                            <DynamicMenuItemStyle HorizontalPadding="5px" VerticalPadding="2px" />
+                            <StaticHoverStyle BackColor="Silver" ForeColor="White" />
+                            <StaticMenuStyle HorizontalPadding="5px" />
+                        </asp:Menu>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <asp:ScriptManager ID="ScriptManager1" runat="server">
+        </asp:ScriptManager>
+        <div style="width: 1000px; margin-top: 20px;">
+            <div style="max-width: 200px; float: left">
+                <asp:ContentPlaceHolder ID="o_cph_lefttop" runat="server">
+                    <asp:TreeView ID="dersmenu" runat="server" BackColor="White" BorderColor="White"
+                        Font-Bold="True" Font-Names="Arial" Font-Size="9pt" ForeColor="White" ImageSet="Simple"
+                        Font-Strikeout="False" NodeWrap="True">
+                        <ParentNodeStyle Font-Bold="False" />
+                        <HoverNodeStyle Font-Underline="True" ForeColor="#5555DD" />
+                        <SelectedNodeStyle Font-Underline="True" ForeColor="#5555DD" HorizontalPadding="0px"
+                            VerticalPadding="0px" Width="150px" />
+                        <NodeStyle BackColor="WhiteSmoke" BorderColor="Gainsboro" BorderStyle="Solid" BorderWidth="1px"
+                            Font-Names="Tahoma" Font-Size="8pt" ForeColor="Black" HorizontalPadding="0px"
+                            NodeSpacing="0px" VerticalPadding="0px" Width="150px" Font-Bold="True" />
+                        <LeafNodeStyle Width="200px" />
+                    </asp:TreeView>
+                </asp:ContentPlaceHolder>
+            </div>
+            <div style="width: 790px; float: left; margin-left: 5px;">
+                <asp:ContentPlaceHolder ID="o_cph_main" runat="server">
+                </asp:ContentPlaceHolder>
+            </div>
+            <div style="clear: both;">
+            </div>
+        </div>
+        </form>
+    </div>
+    <div class="Footer">
+        <span>Bilgi Ýþlem Daire Baþkanlýðý - 2010 [
+            <%  Dim intNumber As Integer
+                intNumber = Application("ActiveUsers")
+                Response.Write(intNumber)%>
+            Kiþi Sistemde] </span>
+        <asp:Label ID="lblStatus" runat="server"></asp:Label>
+    </div>
+</body>
+</html>

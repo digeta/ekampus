@@ -1,0 +1,34 @@
+Imports Microsoft.VisualBasic
+Imports System.Security.Cryptography
+
+Public Class cryptool
+    Private _sha1 As New SHA1CryptoServiceProvider
+    Private _encoder As New UnicodeEncoding
+    Private _bytes_source() As Byte
+    Private _bytes_hash() As Byte
+    Public _encrypted As String
+
+    Public Sub Encrypt(ByVal strToEncrypt As String)
+        Try
+            _bytes_source = _encoder.GetBytes(strToEncrypt)
+            _bytes_hash = _sha1.ComputeHash(_bytes_source)
+            _encrypted = Convert.ToBase64String(_bytes_hash)
+            'CType(fform.FindControl("o_lbl_notice"), Label).Text = Convert.ToBase64String(_bytes_hash)
+            'CType(fform.FindControl("label1"), Label).Text = _bytes_hash.Length
+        Catch _cryexcp As CryptographicException
+        Catch _excp As Exception
+        End Try
+    End Sub
+
+    Public Sub Encrypt(ByVal strToEncrypt As String, ByVal fForm As ContentPlaceHolder)
+        Try
+            _bytes_source = _encoder.GetBytes(strToEncrypt)
+            _bytes_hash = _sha1.ComputeHash(_bytes_source)
+            _encrypted = Convert.ToBase64String(_bytes_hash)
+            CType(fForm.FindControl("o_lbl_notice"), Label).Text = Convert.ToBase64String(_bytes_hash)
+            'CType(fform.FindControl("label1"), Label).Text = _bytes_hash.Length
+        Catch _cryexcp As CryptographicException
+        Catch _excp As Exception
+        End Try
+    End Sub
+End Class
